@@ -1,0 +1,9 @@
+Net2(
+  (convD1): SAGEConv(50, 50)
+  (convD2): SAGEConv(50, 50)
+  (convS1): SAGEConv(50, 50)
+  (convS2): SAGEConv(50, 50)
+  (nodesEmbedding): Embedding(8002, 50)
+)
+<models.MPNNX.MPNNX object at 0x7f9518444910>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_1

@@ -1,0 +1,7 @@
+Default
+<models.baselines.omodels.NeuSK object at 0x7f78810f14d0>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_1
+Train: 0.7659 0.4601
+Test: 0.7641 0.4293
+AUC: 0.7641 0.0000
+AUPR: 0.4293 0.0000

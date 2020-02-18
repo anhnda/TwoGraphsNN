@@ -1,0 +1,40 @@
+Net2(
+  (convD1): SAGEConv(50, 50)
+  (convD2): SAGEConv(50, 50)
+  (convS1): SAGEConv(50, 50)
+  (convS2): SAGEConv(50, 50)
+  (nodesEmbedding): Embedding(4843, 50)
+)
+    def forward(self, x, drugEdges, seEdges, drugNodes, seNodes):
+        x = self.nodesEmbedding(x)
+        x = x.squeeze(1)
+        # Conv Drug:
+        x = self.convD1(x, drugEdges)
+        x = F.relu(x)
+        x = self.convD2(x, drugEdges)
+        x = F.relu(x)
+        # Conv SE:
+        x = self.convS1(x, seEdges)
+        x = F.relu(x)
+        x = self.convS2(x, seEdges)
+        x = F.relu(x)
+
+        drugEmbedding = x[drugNodes]
+        seEmbedding = x[seNodes]
+        # re = torch.sigmoid(re)
+        return drugEmbedding, seEmbedding, x
+
+/home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_1
+('Undirected graph: ', False)
+((928, 598), (928, 598), 117481.89, 91071.0)
+('Error: ', tensor(77412.3516, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5049673698643303, 0.16532527124156174)
+('Test: AUC, AUPR: ', 0.5055556312731269, 0.14796498776524844)
+((928, 598), (928, 598), 89898.98, 91071.0)
+('Error: ', tensor(75969.9766, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.709560354982799, 0.3566547562307802)
+('Test: AUC, AUPR: ', 0.718762612564821, 0.3387806764687868)
+((928, 598), (928, 598), 99688.98, 91071.0)
+('Error: ', tensor(73677.0234, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7172622642219809, 0.3777058120151017)
+('Test: AUC, AUPR: ', 0.7257942049811921, 0.36481092166224693)

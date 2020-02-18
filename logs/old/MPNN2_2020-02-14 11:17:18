@@ -1,0 +1,27 @@
+Net2(
+  (convD1): GCNConv(100, 100)
+  (convD2): GCNConv(100, 100)
+  (convS1): GCNConv(100, 100)
+  (convS2): GCNConv(100, 100)
+  (nodesEmbedding): Embedding(7224, 100)
+)
+    def forward(self, x, drugEdges, seEdges, drugNodes, seNodes):
+        x = self.nodesEmbedding(x)
+        x = x.squeeze(1)
+        # Conv Drug:
+        x = self.convD1(x, drugEdges)
+        x = self.convD2(x, drugEdges)
+
+        # Conv SE:
+        x = self.convS1(x, seEdges)
+        # x = F.relu(x)
+        x = self.convS2(x, seEdges)
+
+
+        drugEmbedding = x[drugNodes]
+        seEmbedding = x[seNodes]
+        # re = torch.sigmoid(re)
+        return drugEmbedding, seEmbedding, x
+
+/home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_1
+('Undirected graph: ', False)

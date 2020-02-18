@@ -1,0 +1,26 @@
+Net2(
+  (convD1): SAGEConv(50, 50)
+  (convD2): SAGEConv(50, 50)
+  (convS1): SAGEConv(50, 50)
+  (convS2): SAGEConv(50, 50)
+  (nodesEmbedding): Embedding(8002, 50)
+)
+    def forward(self, x, drugEdges, seEdges, drugNodes, seNodes):
+        x = self.nodesEmbedding(x)
+        x = x.squeeze(1)
+        # Conv Drug:
+        x = self.convD1(x, drugEdges)
+        x = F.relu(x)
+        x = self.convD2(x, drugEdges)
+        x = F.relu(x)
+        # Conv SE:
+        x = self.convS1(x, seEdges)
+        x = F.relu(x)
+        x = self.convS2(x, seEdges)
+        x = F.relu(x)
+
+        drugEmbedding = x[drugNodes]
+        seEmbedding = x[seNodes]
+        # re = torch.sigmoid(re)
+        return drugEmbedding, seEmbedding, x
+

@@ -1,0 +1,64 @@
+Net2(
+  (convD1): EdgeConv(
+    (mlp): Sequential(
+      (0): Linear(in_features=100, out_features=50, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=50, out_features=50, bias=True)
+    )
+  )
+  (convD2): EdgeConv(
+    (mlp): Sequential(
+      (0): Linear(in_features=100, out_features=50, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=50, out_features=50, bias=True)
+    )
+  )
+  (convS1): EdgeConv(
+    (mlp): Sequential(
+      (0): Linear(in_features=100, out_features=50, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=50, out_features=50, bias=True)
+    )
+  )
+  (convS2): EdgeConv(
+    (mlp): Sequential(
+      (0): Linear(in_features=100, out_features=50, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=50, out_features=50, bias=True)
+    )
+  )
+  (nodesEmbedding): Embedding(4843, 50)
+)
+    def forward(self, x, drugEdges, seEdges, drugNodes, seNodes):
+        x = self.nodesEmbedding(x)
+        x = x.squeeze(1)
+        # Conv Drug:
+        x = self.convD1(x, drugEdges)
+        x = F.relu(x)
+        x = self.convD2(x, drugEdges)
+        x = F.relu(x)
+        # Conv SE:
+        x = self.convS1(x, seEdges)
+        x = F.relu(x)
+        x = self.convS2(x, seEdges)
+        x = F.relu(x)
+
+        drugEmbedding = x[drugNodes]
+        seEmbedding = x[seNodes]
+        # re = torch.sigmoid(re)
+        return drugEmbedding, seEmbedding, x
+
+/home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_1
+('Undirected graph: ', False)
+((928, 598), (928, 598), 0.0, 91071.0)
+('Error: ', tensor(91077.2969, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5, 0.16410845058240112)
+('Test: AUC, AUPR: ', 0.5, 0.14641036464590707)
+((928, 598), (928, 598), 0.0, 91071.0)
+('Error: ', tensor(91071., grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5, 0.16410845058240112)
+('Test: AUC, AUPR: ', 0.5, 0.14641036464590707)
+((928, 598), (928, 598), 0.0, 91071.0)
+('Error: ', tensor(91071., grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5, 0.16410845058240112)
+('Test: AUC, AUPR: ', 0.5, 0.14641036464590707)

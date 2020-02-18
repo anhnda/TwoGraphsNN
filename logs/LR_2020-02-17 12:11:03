@@ -1,0 +1,34 @@
+Default
+<models.baselines.omodels.LogisticModel object at 0x7f4ce09c3690>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_0
+Train: 0.7904 0.5040
+Test: 0.7303 0.4220
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_1
+Train: 0.7903 0.5151
+Test: 0.7486 0.4017
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_2
+Train: 0.7898 0.5103
+Test: 0.7591 0.4276
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_3
+Train: 0.7936 0.5156
+Test: 0.7391 0.4252
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_4
+Train: 0.7886 0.5121
+Test: 0.7462 0.3790
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_5
+Train: 0.7912 0.5151
+Test: 0.7508 0.3972
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_6
+Train: 0.7888 0.5055
+Test: 0.7190 0.4118
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_7
+Train: 0.7911 0.5119
+Test: 0.7465 0.4028
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_8
+Train: 0.7918 0.5130
+Test: 0.7445 0.4056
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_9
+Train: 0.7919 0.5118
+Test: 0.7458 0.4275
+AUC: 0.7430 0.0034
+AUPR: 0.4100 0.0048

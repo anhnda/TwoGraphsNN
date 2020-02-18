@@ -1,0 +1,7 @@
+SCCA: 10 
+<models.baselines.sccar.SCCAR object at 0x7fa92e7cd990>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_1
+Train: 0.7497 0.4378
+Test: 0.7483 0.4183
+AUC: 0.7483 0.0000
+AUPR: 0.4183 0.0000

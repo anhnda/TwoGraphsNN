@@ -1,0 +1,7 @@
+CSMF_P
+<models.baselines.CSMF.CSMF object at 0x7f0696b00e90>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_1
+Train: 0.9813 0.9326
+Test: 0.7528 0.4217
+AUC: 0.7528 0.0000
+AUPR: 0.4217 0.0000
