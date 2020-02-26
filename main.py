@@ -2,11 +2,11 @@ from evaluator import Evaluator
 from optparse import OptionParser
 import config
 
-
-def runNeuModel():
-    model = NeuNModel()
-    evaluator = Evaluator()
-    evaluator.evalModel(model)
+#
+# def runNeuModel():
+#     model = NeuNModel()
+#     evaluator = Evaluator()
+#     evaluator.evalModel(model)
 
 
 def runLR():
@@ -72,6 +72,20 @@ def runMPNN():
     evaluator = Evaluator()
     evaluator.evalModel(model)
 
+def runMPNN3():
+    from models.MPNNX3 import MPNNX3
+    model = MPNNX3()
+    evaluator = Evaluator()
+    evaluator.evalModel(model)
+
+
+
+def runMPNN4():
+    from models.MPNNX4 import MPNNX4
+    model = MPNNX4()
+    evaluator = Evaluator()
+    evaluator.evalModel(model)
+
 def convertStringToBoolean(val):
     print(val)
     if type(val) == bool:
@@ -94,7 +108,7 @@ def parseConfig(options):
 if __name__ == "__main__":
     parser = OptionParser()
 
-    parser.add_option("-m", "--model", dest="modelName", type='string', default="MSLR",
+    parser.add_option("-m", "--model", dest="modelName", type='string', default="MPNN4",
                       help="MODELNAME:\n"
                            "NeuN: neural feedforward networks,\n")
 
@@ -106,9 +120,8 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
     parseConfig(options)
     modelName = options.modelName
-    if modelName == "NeuN":
-        runNeuModel()
-    elif modelName == "NeuSK":
+
+    if modelName == "NeuSK":
         runNeuSK()
     elif modelName == "LR":
         runLR()
@@ -126,7 +139,10 @@ if __name__ == "__main__":
         runSCCAR()
     elif modelName == "MPNN":
         runMPNN()
-
+    elif modelName == "MPNN3":
+        runMPNN3()
+    elif modelName == "MPNN4":
+        runMPNN4()
     else:
         print("Method %s is not implemented" % modelName)
         exit(-1)

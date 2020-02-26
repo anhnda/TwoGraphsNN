@@ -1,0 +1,16 @@
+CSMF_P
+<models.baselines.CSMF.CSMF object at 0x7f48cccacf90>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_0
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.5000 0.1603
+Test: 0.2643 0.1149
+[0.537378398036185, 0.505556835190219, 0.4882559696333013, 0.4707666201105872, 0.45954648862920516]
+[0.06196694312106165, 0.0644144156443657, 0.06649366984019475, 0.06857099129820515, 0.07023916727864864]
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_1
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.5000 0.1641
+Test: 0.2362 0.0905
+[0.5266713742531234, 0.4957359903346419, 0.48600212070927024, 0.46476232313904325, 0.45500497008605806]
+[0.04531247092604691, 0.043879290012213475, 0.04540570421894194, 0.04639884952612856, 0.047312582018797546]
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_2
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)

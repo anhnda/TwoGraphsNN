@@ -1,0 +1,20 @@
+    def forward(self, x, drugEdges, seEdges, drugNodes, seNodes):
+        x = self.nodesEmbedding(x)
+        x = x.squeeze(1)
+        # Conv Drug:
+        x = self.convD1(x, drugEdges)
+        x = F.sigmoid(x)
+        x = self.convD2(x, drugEdges)
+        x = F.sigmoid(x)
+        # Conv SE:
+        x = self.convS1(x, seEdges)
+        x = F.sigmoid(x)
+        x = self.convS2(x, seEdges)
+        x = F.sigmoid(x)
+
+        drugEmbedding = x[drugNodes]
+        seEmbedding = x[seNodes]
+        # re = torch.sigmoid(re)
+        return drugEmbedding, seEmbedding, x
+
+('Undirected graph: ', False)

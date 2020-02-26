@@ -12,7 +12,7 @@ class CSMF:
         self.model = "CSMF"
         pass
 
-    def feed(self, input, output):
+    def feed(self, input, output, seMat=None):
         self.X = input
         self.Y = output
         self.nTrain, self.nDim = self.X.shape
@@ -35,8 +35,14 @@ class CSMF:
         # self.M = np.loadtxt("%s%s/%s"%(config.FOLD_PREFIX,iFold,config.DRUG_SIM_FILE))
         # self.N = self.loadSESim()
         # self.M = np.ones((self.NUM_DRUG,self.NUM_DRUG),dtype=float)
-
-        self.N = np.ones((self.nSE, self.nSE), dtype=float)
+        if seMat is None:
+            self.N = np.ones((self.nSE, self.nSE), dtype=float)
+        else:
+            self.N = np.zeros((self.nSE, self.nSE), dtype=float)
+            for i in range(self.nSE):
+                for j in range(i, self.nSE):
+                    v = utils.getTanimotoScore(seMat[i], seMat[j])
+                    self.N[i, j] = self.N[j, i] = v
         self.sumAdaGraF = np.zeros((self.nTrain, config.EMBED_DIM))
         self.sumAdaGraG = np.zeros((self.nSE, config.EMBED_DIM))
 
@@ -45,8 +51,8 @@ class CSMF:
 
         print("Finished initialization")
 
-    def fit(self, input, output):
-        self.feed(input, output)
+    def fit(self, input, output, seMat):
+        self.feed(input, output, seMat)
         self.learn()
 
     def predict(self, inputTest):
@@ -87,8 +93,8 @@ class CSMF:
         v = self.normEXP(v)
         return v
 
-    def fitAndPredict(self, input, output, inputTest):
-        self.fit(input, output)
+    def fitAndPredict(self, input, output, inputTest, seMat=None):
+        self.fit(input, output, seMat)
         self.repred = self.getP()
         return self.predict(inputTest)
 
@@ -187,19 +193,20 @@ class CSMF:
         m -= diag
         m *= -1
         return m
+
     def getParams(self):
         return "CSMF_P"
 
 
 if __name__ == "__main__":
     from dataFactory.loader2 import BioLoader2
+
     iFold = 1
     bioLoader2 = BioLoader2()
     trainPath = BioLoader2.getPathIFold(iFold)
     bioLoader2.createTrainTestGraph(trainPath)
 
     from models.baselines.omodels import LNSM
-
 
     model = CSMF()
     # model = LNSM()
@@ -208,5 +215,4 @@ if __name__ == "__main__":
     # print (targetTest, outTest)
     auc = roc_auc_score(targetTest.reshape(-1), outTest.reshape(-1))
     aupr = average_precision_score(targetTest.reshape(-1), outTest.reshape(-1))
-    print ("AUC, AUPR: ", auc, aupr)
-
+    print("AUC, AUPR: ", auc, aupr)

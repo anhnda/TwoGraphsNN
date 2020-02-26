@@ -1,0 +1,34 @@
+Default
+<models.baselines.omodels.LNSM object at 0x7fcc91ae9750>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_0
+Train: 0.7568 0.4546
+Test: 0.7118 0.4153
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_1
+Train: 0.7536 0.4612
+Test: 0.7264 0.3902
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_2
+Train: 0.7558 0.4610
+Test: 0.7384 0.4100
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_3
+Train: 0.7609 0.4641
+Test: 0.7124 0.4169
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_4
+Train: 0.7589 0.4748
+Test: 0.7357 0.3787
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_5
+Train: 0.7590 0.4736
+Test: 0.7336 0.3854
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_6
+Train: 0.7542 0.4647
+Test: 0.7169 0.3986
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_7
+Train: 0.7555 0.4685
+Test: 0.7277 0.4003
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_8
+Train: 0.7565 0.4691
+Test: 0.7215 0.3917
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_9
+Train: 0.7585 0.4676
+Test: 0.7182 0.4180
+AUC: 0.7243 0.0029
+AUPR: 0.4005 0.0042

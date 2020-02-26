@@ -80,7 +80,15 @@ class BioLoader2:
             fin.close()
             return d
 
-        if config.MORGAN:
+        if config.BOTH_CHEM:
+            dInchi2Morgan = loadMorgan()
+            dInchi2PubChem = utils.load_obj(config.PUBCHEM_FILE)
+            dInchi2Features = dict()
+            for k, v in dInchi2Morgan.items():
+                vPubchem = dInchi2PubChem[k]
+                v = np.concatenate((v, vPubchem))
+                dInchi2Features[k] = v
+        elif config.MORGAN:
             dInchi2Features = loadMorgan()
         else:
             dInchi2Features = utils.load_obj(config.PUBCHEM_FILE)
@@ -251,7 +259,7 @@ class BioLoader2:
 
         meddraSet = set()
         parentDict = dict()
-        seIds = set()
+        seMeddraIds = set()
         # Load leaves:
         f = open(config.SE_ONTOLOTY_FILE_1)
         while True:
@@ -261,14 +269,14 @@ class BioLoader2:
 
             line = line.strip()
             parts = line.split("|")
-            childId = parts[0]
-            parentIds = parts[1].split(",")
-            if childId not in selectedSeMeddraSet:
+            childMeddraId = parts[0]
+            parrentMeddraIds = parts[1].split(",")
+            if childMeddraId not in selectedSeMeddraSet:
                 continue
-            seIds.add(childId)
-            meddraSet.add(childId)
-            currentParentSet = utils.get_insert_key_dict(parentDict, childId, set())
-            for parentId in parentIds:
+            seMeddraIds.add(childMeddraId)
+            meddraSet.add(childMeddraId)
+            currentParentSet = utils.get_insert_key_dict(parentDict, childMeddraId, set())
+            for parentId in parrentMeddraIds:
                 meddraSet.add(parentId)
                 currentParentSet.add(parentId)
 
@@ -285,27 +293,27 @@ class BioLoader2:
                     break
                 line = line.strip()
                 parts = line.split("|")
-                childId = parts[0]
-                if childId not in lv1MeddraSet:
+                childMeddraId = parts[0]
+                if childMeddraId not in lv1MeddraSet:
                     continue
-                parentIds = parts[1].split(",")
-                currentParentSet = utils.get_insert_key_dict(parentDict, childId, set())
-                for parentId in parentIds:
+                parrentMeddraIds = parts[1].split(",")
+                currentParentSet = utils.get_insert_key_dict(parentDict, childMeddraId, set())
+                for parentId in parrentMeddraIds:
                     currentParentSet.add(parentId)
                     meddraSet.add(parentId)
 
             f.close()
 
-        print(len(meddraSet), len(seIds), len(parentDict))
+        print(len(meddraSet), len(seMeddraIds), len(parentDict))
 
         self.dMeddra2Id = dict()
-        sortedSeIds = sorted(list(seIds))
+        sortedSeIds = sorted(list(seMeddraIds))
         sortedMeddraSet = sorted(list(meddraSet))
 
         for meddraId in sortedSeIds:
             utils.get_update_dict_index(self.dMeddra2Id, meddraId)
         for meddraId in sortedMeddraSet:
-            if meddraId not in seIds:
+            if meddraId not in seMeddraIds:
                 utils.get_update_dict_index(self.dMeddra2Id, meddraId)
 
         self.dSeName2Id = dict()
@@ -315,9 +323,62 @@ class BioLoader2:
             self.dSeName2Id[k] = seId
 
         self.meddraSet = meddraSet
-        self.seMeddraIds = seIds
+        self.seMeddraIds = seMeddraIds
         self.seParentDict = parentDict
         self.dseId2Names = utils.reverse_dict(self.dSeName2Id)
+
+        self.allParents = dict()
+
+        for se in sortedSeIds:
+            parent1s = utils.get_dict(parentDict, se, set())
+            parents = parent1s.copy()
+
+            for parent1 in parent1s:
+                parents.add(parent1)
+                p2 = utils.get_dict(parentDict, parent1, set())
+                for p in p2:
+                    parents.add(p)
+                    p3 = utils.get_dict(parentDict, p, set())
+                    for pp in p3:
+                        parents.add(pp)
+            parents.add(se)
+            self.allParents[se] = parents
+
+        seMat = np.zeros((len(sortedSeIds), len(sortedMeddraSet)))
+        print("X len", len(self.allParents), len(self.dseId2Names))
+        for sId in range(len(sortedSeIds)):
+            parents = self.allParents[sortedSeIds[sId]]
+            for parent in parents:
+                seMat[sId, self.dMeddra2Id[parent]] = 1
+
+        self.seMat = seMat
+
+        dSeId2Prop = dict()
+        for sId in range(len(sortedSeIds)):
+            seName = self.dseId2Names[sId]
+            prop = dSeName2Prop[seName]
+            dSeId2Prop[sId] = prop
+
+        self.dSeId2Prop = dSeId2Prop
+
+        listRareSe = list()
+        STEP_SIZE = 0.01
+        for i in range(1, int(config.RARE_THRESHOLD / STEP_SIZE)):
+            t = STEP_SIZE * i
+            l = list()
+            for k, v in dSeId2Prop.items():
+                if v <= t:
+                    l.append(k)
+
+            l = np.asarray(l)
+            listRareSe.append(l)
+
+        self.listRareSe = listRareSe
+
+        seId1 = listRareSe[-1][0]
+        seName1 = self.dseId2Names[seId1]
+        prop1 = self.dSeId2Prop[seId1]
+        print("Id, name, prop: ", seId1, seName1, prop1)
 
     def loadPPI(self):
         ppis = list()
@@ -415,7 +476,7 @@ class BioLoader2:
                 cc += 1
                 drug_edge_index.append([proteinId1 + self.PROTEIN_OFFSET, proteinId2 + self.PROTEIN_OFFSET])
                 drug_edge_index.append([proteinId2 + self.PROTEIN_OFFSET, proteinId1 + self.PROTEIN_OFFSET])
-        print ("N Protein-Protein: ", cc)
+        print("N Protein-Protein: ", cc)
 
         # Add DART
         if config.DART:
@@ -516,9 +577,10 @@ class BioLoader2:
         self.testOutMatrix = torch.from_numpy(testOutMatrix).float()
 
         inputAll = np.concatenate([self.matDrugChem, self.matDrugProtein, self.matDrugPathway], axis=1)
-        print("Input Featuers: ", inputAll.shape)
         self.trainInpMat = inputAll[drugTrainIds, :]
         self.testInpMat = inputAll[drugTestIds, :]
+
+        print("Num Drug-SE: ", np.sum(trainOutMatrix) + np.sum(testOutMatrix))
 
     def createTrainTestGraph(self, fPath, allTrain=False):
         self.createSharedGraph()
@@ -539,6 +601,8 @@ class BioLoader2:
 
         self.drugGraphData = Data(x=self.x, edge_index=drug_edge_index)
         self.seGraphData = Data(x=self.x, edge_index=se_edge_index)
+
+        print("Num edges: ", self.drugGraphData.num_edges, self.seGraphData.num_edges)
 
         drugTrainNodeIds = list()
         drugTestNodeIds = list()

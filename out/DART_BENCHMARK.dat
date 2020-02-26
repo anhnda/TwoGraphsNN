@@ -7,10 +7,7 @@ warfarin|hypoglycaemia|P11712
 glipizide|hypoglycaemia|P11712
 tolbutamide|hypoglycaemia|P11712
 paroxetine|bradycardia|P10635
-paroxetine|lactic acidosis|P10635
 paroxetine|hepatotoxicity|P10635
-mephenytoin|neurotoxicity|P33261
-diazepam|neurotoxicity|P33261
 ciprofloxacin|myositis|P08684
 fluvoxamine|myositis|P08684
 nefazodone|myositis|P08684
@@ -48,19 +45,8 @@ indomethacin|vomiting|P23219,P35354
 sulindac|vomiting|P23219,P35354
 piroxicam|vomiting|P23219,P35354
 diflunisal|vomiting|P23219,P35354
-ciprofloxacin|sedation|P05177
-fluvoxamine|sedation|P05177
 ciprofloxacin|respiratory depression|P05177
 fluvoxamine|respiratory depression|P05177
-ciprofloxacin|tardive dyskinesia|P05177
-fluvoxamine|tardive dyskinesia|P05177
-dobutamine|bronchoconstriction|P08588
-isoprenaline|bronchoconstriction|P08588
-ephedrine|bronchoconstriction|P08588
-propranolol|bronchoconstriction|P08588
-betaxolol|bronchoconstriction|P08588
-metoprolol|bronchoconstriction|P08588
-labetalol|bronchoconstriction|P08588
 dobutamine|cardiac failure|P08588
 isoprenaline|cardiac failure|P08588
 ephedrine|cardiac failure|P08588
@@ -75,13 +61,6 @@ propranolol|sexual dysfunction|P08588
 betaxolol|sexual dysfunction|P08588
 metoprolol|sexual dysfunction|P08588
 labetalol|sexual dysfunction|P08588
-dobutamine|nephrotoxicity|P08588
-isoprenaline|nephrotoxicity|P08588
-ephedrine|nephrotoxicity|P08588
-propranolol|nephrotoxicity|P08588
-betaxolol|nephrotoxicity|P08588
-metoprolol|nephrotoxicity|P08588
-labetalol|nephrotoxicity|P08588
 dobutamine|muscular weakness|P08588
 isoprenaline|muscular weakness|P08588
 ephedrine|muscular weakness|P08588
@@ -151,17 +130,6 @@ risperidone|nasal congestion|P35348
 phenoxybenzamine|nasal congestion|P35348
 prazosin|nasal congestion|P35348
 labetalol|nasal congestion|P35348
-acetaminophen|ischaemia|P35348
-epinephrine|ischaemia|P35348
-cocaine|ischaemia|P35348
-phenylephrine|ischaemia|P35348
-chlorpromazine|ischaemia|P35348
-thioridazine|ischaemia|P35348
-clozapine|ischaemia|P35348
-risperidone|ischaemia|P35348
-phenoxybenzamine|ischaemia|P35348
-prazosin|ischaemia|P35348
-labetalol|ischaemia|P35348
 acetaminophen|hypertension|P35348
 epinephrine|hypertension|P35348
 cocaine|hypertension|P35348,P23975
@@ -188,7 +156,6 @@ ofloxacin|coma|P14867
 naloxone|coma|P14867
 lindane|coma|P14867
 isoniazid|coma|P14867
-testosterone|infertility|P10275
 testosterone|oedema|P10275
 testosterone|gynaecomastia|P10275
 etoposide|vomiting|Q02880,P11388
@@ -256,22 +223,6 @@ fentanyl|respiratory depression|P35372
 sufentanil|respiratory depression|P35372
 naloxone|respiratory depression|P35372
 naltrexone|respiratory depression|P35372
-morphine|sedation|P35372
-codeine|sedation|P35372
-methadone|sedation|P35372
-pethidine|sedation|P35372
-fentanyl|sedation|P35372
-sufentanil|sedation|P35372
-naloxone|sedation|P35372
-naltrexone|sedation|P35372
-morphine|dependence|P35372
-codeine|dependence|P35372
-methadone|dependence|P35372
-pethidine|dependence|P35372
-fentanyl|dependence|P35372
-sufentanil|dependence|P35372
-naloxone|dependence|P35372
-naltrexone|dependence|P35372
 imipramine|hypertension|P23975
 phenoxybenzamine|excitement|P23975
 imipramine|excitement|P23975
@@ -298,16 +249,11 @@ chlorpromazine|extrapyramidal symptoms|P21728,P14416
 thioridazine|extrapyramidal symptoms|P21728,P14416
 haloperidol|extrapyramidal symptoms|P21728,P14416
 clozapine|extrapyramidal symptoms|P21728,P14416
-chlorpromazine|sedation|P21728,P14416
-thioridazine|sedation|P21728,P14416
-haloperidol|sedation|P21728,P14416
-clozapine|sedation|P21728,P14416
 haloperidol|hypotension|P21728,P14416
 phenelzine|insomnia|P21397,P27338
 tranylcypromine|insomnia|P21397,P27338
 isocarboxazid|insomnia|P21397,P27338
 risperidone|extrapyramidal symptoms|P14416
-risperidone|sedation|P14416
 diltiazem|headache|Q13698,Q01668,Q13936,O60840
 diltiazem|constipation|Q13698,Q01668,Q13936,O60840
 diltiazem|cardiac failure|Q13698,Q01668,Q13936,O60840
@@ -338,7 +284,6 @@ isoniazid|sweating|P19801
 isoniazid|headache|P19801
 isoniazid|lightheadedness|P19801
 vigabatrin|nausea|P80404
-vigabatrin|sedation|P80404
 acetylcholine|sweating|P22303
 indomethacin|sweating|P22303
 donepezil|sweating|P22303
@@ -349,16 +294,11 @@ acetylcholine|diarrhoea|P22303
 acetaminophen|hepatotoxicity|Q14994
 phenobarbital|hepatotoxicity|Q14994
 methotrexate|myelosuppression|P00374
-methotrexate|nephrotoxicity|P00374
 phenytoin|ataxia|Q9NY72,O60939,Q07699
 carbamazepine|ataxia|Q9NY72,O60939,Q07699
 phenytoin|vertigo|Q9NY72,O60939,Q07699
 carbamazepine|vertigo|Q9NY72,O60939,Q07699
 phenytoin|hirsutism|Q9NY72,O60939,Q07699
 carbamazepine|hirsutism|Q9NY72,O60939,Q07699
-phenytoin|sedation|Q9NY72,O60939,Q07699
-carbamazepine|sedation|Q9NY72,O60939,Q07699
-phenytoin|water retention|Q9NY72,O60939,Q07699
-carbamazepine|water retention|Q9NY72,O60939,Q07699
 phenytoin|leukopenia|Q9NY72,O60939,Q07699
 carbamazepine|leukopenia|Q9NY72,O60939,Q07699

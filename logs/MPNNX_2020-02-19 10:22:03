@@ -1,0 +1,40 @@
+    def forward(self, x, drugEdges, seEdges, drugNodes, seNodes):
+        x = self.nodesEmbedding(x)
+        x = x.squeeze(1)
+        # Conv Drug:
+        x = self.convD1(x, drugEdges)
+        x = sigmoid(x)
+        x = self.convD2(x, drugEdges)
+        x = sigmoid(x)
+        # Conv SE:
+        x = self.convS1(x, seEdges)
+        x = sigmoid(x)
+        x = self.convS2(x, seEdges)
+        x = sigmoid(x)
+
+        drugEmbedding = x[drugNodes]
+        seEmbedding = x[seNodes]
+        # re = torch.sigmoid(re)
+        return drugEmbedding, seEmbedding, x
+
+('Undirected graph: ', False)
+MPNNX
+<models.MPNNX.MPNNX object at 0x7f8289471bd0>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_0
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+((928, 598), (928, 598), 7805867.0, 88960.0)
+('Error: ', tensor(1.0739e+08, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.49051019611439245, 0.15425495769760922)
+('Test: AUC, AUPR: ', 0.49222220772741204, 0.17097204185698597)
+((928, 598), (928, 598), 228530.95, 88960.0)
+('Error: ', tensor(109868.7500, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5077291458657471, 0.1584232159102779)
+('Test: AUC, AUPR: ', 0.5094001546139308, 0.17515629379066042)
+((928, 598), (928, 598), 27949.83, 88960.0)
+('Error: ', tensor(81430.9453, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5399653500676552, 0.1731240595527044)
+('Test: AUC, AUPR: ', 0.5391051316357683, 0.18972165270001287)
+((928, 598), (928, 598), 12345.772, 88960.0)
+('Error: ', tensor(85289.1016, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5596278812182793, 0.1849822813086363)
+('Test: AUC, AUPR: ', 0.5569886991953992, 0.2012575238955584)

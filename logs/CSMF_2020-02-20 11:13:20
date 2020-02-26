@@ -1,0 +1,44 @@
+CSMF_P
+<models.baselines.CSMF.CSMF object at 0x7f57379676d0>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_0
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.9822 0.9349
+Test: 0.7225 0.4323
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_1
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.9814 0.9327
+Test: 0.7534 0.4215
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_2
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.9824 0.9365
+Test: 0.7522 0.4387
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_3
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.9824 0.9363
+Test: 0.7312 0.4458
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_4
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.9817 0.9331
+Test: 0.7500 0.3988
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_5
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.9822 0.9361
+Test: 0.7459 0.4110
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_6
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.9830 0.9393
+Test: 0.7327 0.4345
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_7
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.9827 0.9381
+Test: 0.7452 0.4335
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_8
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.9811 0.9318
+Test: 0.7352 0.4078
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_9
+('Number of substructures, proteins, pathways, drugs, se: ', 2048, 1448, 330, 1030, 598)
+Train: 0.9808 0.9301
+Test: 0.7316 0.4303
+AUC: 0.7400 0.0032
+AUPR: 0.4254 0.0045

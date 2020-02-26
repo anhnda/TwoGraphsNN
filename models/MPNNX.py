@@ -9,6 +9,8 @@ import numpy as np
 from utils import utils
 from utils.logger.logger2 import MyLogger
 import inspect
+
+
 class MPNNX:
     def __init__(self):
 
@@ -16,6 +18,7 @@ class MPNNX:
         logPath = "%s/logs/MPNNX_%s" % (config.C_DIR, utils.getCurrentTimeString())
         print("Logging path: ", logPath)
         self.logger = MyLogger(logPath)
+        self.logger.infoAll(inspect.getsource(Net2.__init__))
         self.logger.infoAll(inspect.getsource(Net2.forward))
         self.logger.infoAll(("Undirected graph: ", config.UN_DIRECTED))
         self.name = "MPNNX"
@@ -30,12 +33,29 @@ class MPNNX:
         err = torch.sum(err)
         # err =  self.mseLoss(err,self.zeroTargets)
         return err
+
     def __getF1Err(self, err):
         err = torch.abs(err)
         err = torch.sum(err)
         # err =  self.mseLoss(err,self.zeroTargets)
         return err
+
     def getMatDotLoss(self, u, v, t):
+
+        loss = 0
+        out = self.model.cal(u, v)
+
+        err1 = out - t
+        err1 = self.__getF2Err(err1)
+        loss += err1
+
+        # reg1 = self.__getF1Err(u) + self.__getF1Err(v)
+        # reg1 *= 0.01
+        # loss += reg1
+
+        return loss, out
+
+    def getMatDotLoss2(self, u, v, t):
 
         loss = 0
         out = torch.matmul(u, v.t())
@@ -44,13 +64,13 @@ class MPNNX:
         err1 = self.__getF2Err(err1)
         loss += err1
 
-        reg1 = self.__getF1Err(u) + self.__getF1Err(v)
-        reg1 *= 0.01
-        loss += reg1
+        # reg1 = self.__getF1Err(u) + self.__getF1Err(v)
+        # reg1 *= 0.01
+        # loss += reg1
 
         return loss, out
 
-    def train(self, bioLoader2, debug=True):
+    def train(self, bioLoader2, debug=True, pred=True):
         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
         loss = torch.nn.MSELoss()
         # loss = torch.nn.BCELoss()
@@ -63,6 +83,7 @@ class MPNNX:
                                                bioLoader2.drugGraphData.edge_index, bioLoader2.seGraphData.edge_index,
                                                bioLoader2.drugTrainNodeIds,
                                                bioLoader2.seNodeIds)
+
             err, out = self.getMatDotLoss(drugE, seE, bioLoader2.trainOutMatrix)
 
             out2 = out.detach().numpy()
@@ -82,8 +103,10 @@ class MPNNX:
                 self.logger.infoAll(("Error: ", err))
                 self.logger.infoAll(("Train: AUC, AUPR: ", auc2, aupr2))
 
-                outTest = torch.matmul(x[bioLoader2.drugTestNodeIds], x[bioLoader2.seNodeIds].t())
+                # outTest = torch.matmul(x[bioLoader2.drugTestNodeIds], x[bioLoader2.seNodeIds].t())
+                outTest = self.model.cal(x[bioLoader2.drugTestNodeIds], x[bioLoader2.seNodeIds])
                 outTest = outTest.detach().numpy()
+
                 targetTest = bioLoader2.testOutMatrix.numpy()
 
                 auc = roc_auc_score(targetTest.reshape(-1), outTest.reshape(-1))
@@ -95,20 +118,25 @@ class MPNNX:
                     np.savetxt("out/drugE.txt", drugE.detach().numpy())
                     np.savetxt("out/seE.txt", seE.detach().numpy())
 
-        if not debug:
-            outTest = torch.matmul(x[bioLoader2.drugTestNodeIds], x[bioLoader2.seNodeIds].t())
+        if pred and not debug:
+            # outTest = torch.matmul(x[bioLoader2.drugTestNodeIds], x[bioLoader2.seNodeIds].t())
+            outTest = self.model.cal(x[bioLoader2.drugTestNodeIds], x[bioLoader2.seNodeIds])
             outTest = outTest.detach().numpy()
-
-        return out2, outTest
+        if pred:
+            return out2, outTest
+        else:
+            return drugE, seE
 
     def fitAndPredict(self, bioLoader):
         self.resetModel()
-        out2, outTest = self.train(bioLoader,debug=True)
+        out2, outTest = self.train(bioLoader, debug=True)
         self.repred = out2
         return outTest
 
     def getParams(self):
         return "MPNNX"
+
+
 if __name__ == "__main__":
     mpnn = MPNNX()
     mpnn.train()

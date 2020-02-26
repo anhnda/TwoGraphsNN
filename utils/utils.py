@@ -169,3 +169,14 @@ def getTanimotoScore(ar1, ar2):
     c2 = np.sum(ar2)
     bm = np.dot(ar1, ar2)
     return bm * 1.0 / (c1 + c2 - bm + 1e-10)
+
+
+
+def get3WJaccardOnSets(set1, set2):
+    len1 = len(set1)
+    len2 = len(set2)
+    nMatch = 0
+    for s in set1:
+        if s in set2:
+            nMatch += 1
+    return 3.0 * nMatch / (len1 + len2 + nMatch + 0.01)
