@@ -1,0 +1,6 @@
+PSLR
+<models.baselines.omodels.PSLRModel object at 0x7fc18a9df350>
+('Manual torch seed: ', 443181909)
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_0
+('Number of substructures, proteins, pathways, drugs, se: ', 2936, 1448, 330, 969, 598)
+((872, 1448), (97, 1448), (872, 598), (97, 598))

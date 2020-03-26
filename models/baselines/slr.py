@@ -191,18 +191,18 @@ class PSLR(torch.nn.Module):
     def __init__(self):
         super(PSLR, self).__init__()
 
-    def fit(self, x, y, ppw):
+    def fit(self, x, y):
         nSample, nFeature = x.shape
         _, nClass = y.shape
 
-        nR, nA = ppw.shape
+        # nR, nA = ppw.shape
 
         w = torch.zeros([nFeature, nClass])
         self.w = Parameter(w, requires_grad=True)
 
-        self.wc = self.w[:config.CHEM_FINGERPRINT_SIZE, :]
-        self.wr = self.w[config.CHEM_FINGERPRINT_SIZE: config.CHEM_FINGERPRINT_SIZE + nR, :]
-        self.wa = self.w[config.CHEM_FINGERPRINT_SIZE + nR:, :]
+        # self.wc = self.w[:config.CHEM_FINGERPRINT_SIZE, :]
+        # self.wr = self.w[config.CHEM_FINGERPRINT_SIZE: config.CHEM_FINGERPRINT_SIZE + nR, :]
+        # self.wa = self.w[config.CHEM_FINGERPRINT_SIZE + nR:, :]
 
         c = torch.ones([nClass])
         self.c = Parameter(c, requires_grad=True)
@@ -273,13 +273,13 @@ class PSLR(torch.nn.Module):
 
         v = -z1 - z2
         e1 = torch.sum(v, dim=0)
-        # e2 = torch.sum(torch.abs(self.w), dim=0)
+        e2 = torch.sum(torch.abs(self.w), dim=0)
 
         # e2 = torch.sum(torch.mul(self.w, self.w), dim=0)
 
         # e2 = torch.sum(torch.abs(self.w), dim=0) - config.LAMBDA_R12 * (
         #           self.__getMaxErr2(self.wc) + self.__getMaxErr2(self.wr) + self.__getMaxErr2(self.wa))
-        e2 = torch.sum(self.getExGLasso(self.wc) + self.getExGLasso(self.wr) + self.getExGLasso(self.wa))
+        # e2 = torch.sum(self.getExGLasso(self.wc) + self.getExGLasso(self.wr) + self.getExGLasso(self.wa))
         v = e1 * config.LR_C + e2
         v = torch.sum(v)
         return v

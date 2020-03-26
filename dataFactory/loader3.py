@@ -27,6 +27,15 @@ class BioLoader3:
         self.drugId2Index = None
         self.drugIndex2Id = None
 
+    def loadValidInchi(self):
+        path = BioLoader3.getPathIFold(0)
+        fin = open(path)
+        self.validInchi = set()
+        while True:
+            line = fin.readline()
+            if line == "":
+                break
+            self.validInchi.add(line.split("|")[0])
     def loadDrugName2Info(self):
         f = open(config.DRUGBANK_ATC_INCHI)
         dDrugName2Inchi = dict()
@@ -94,7 +103,10 @@ class BioLoader3:
             dInchi2Features = utils.load_obj(config.PUBCHEM_FILE)
         inchiKeyList = sorted(list(dInchi2Features.keys()))
         dBit2Inchi = dict()
+        self.loadValidInchi()
         for k in inchiKeyList:
+            if k not in self.validInchi:
+                continue
             v = dInchi2Features[k]
             chemId = utils.get_update_dict_index(self.drugInchiKey2Id, k)
             self.drugId2Features[chemId] = v
@@ -136,10 +148,8 @@ class BioLoader3:
                 for vv in v:
                     proteinIdList.append(self.protein2Id[vv])
 
-                ar = np.zeros(self.nProtein, dtype=int)
-                for vv in proteinIdList:
-                    ar[vv] = 1
-                self.drugId2ProteinIndices[drugId] = ar
+
+                self.drugId2ProteinIndices[drugId] = proteinIdList
 
     def loadDART(self):
         def loadMapFromFile(path):
@@ -452,7 +462,8 @@ class BioLoader3:
 
         for drugId in range(self.nDrug):
             chems = self.drugId2Features[drugId]
-            for chemId in chems:
+            nonZeros = np.nonzero(chems)[0]
+            for chemId in nonZeros:
                 chemId = int(chemId)
                 self.matDrugChem[drugId, chemId] = 1
 

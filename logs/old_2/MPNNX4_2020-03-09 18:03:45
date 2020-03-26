@@ -1,0 +1,141 @@
+    def __init__(self, numNode=10000, numAtomFeature=0):
+        super(Net4, self).__init__()
+
+        self.convD1 = GATConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convD2 = GATConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+
+        self.convS1 = GATConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convS2 = GATConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+
+        self.L1 = Linear(config.CHEM_FINGERPRINT_SIZE, config.EMBED_DIM * 2)
+        self.actL1 = F.relu
+        self.L2 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.actL2 = F.relu
+
+        self.linear1 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.act1 = F.relu
+        self.linear2 = Linear(config.EMBED_DIM, 1)
+        self.act2 = F.relu
+
+        self.nodesEmbedding = torch.nn.Embedding(num_embeddings=numNode + 1, embedding_dim=config.EMBED_DIM)
+        self.nodesEmbedding.weight.data.uniform_(0.001, 0.3)
+
+
+
+        # Molecule graph neural net
+
+        self.mlinear1 = Linear(numAtomFeature, config.EMBED_DIM * 2)
+        self.mact1 = F.relu
+        self.mlinear2 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.mact2 = F.relu
+
+        self.conv1 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.pool1 = TopKPooling(config.EMBED_DIM, ratio=0.8)
+        self.conv2 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.pool2 = TopKPooling(config.EMBED_DIM, ratio=0.8)
+        self.conv3 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.pool3 = TopKPooling(config.EMBED_DIM, ratio=0.8)
+        self.lin1 = torch.nn.Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.lin2 = torch.nn.Linear(config.EMBED_DIM, config.EMBED_DIM)
+
+
+        self.bn1 = torch.nn.BatchNorm1d(128)
+        self.bn2 = torch.nn.BatchNorm1d(64)
+        self.act1 = torch.nn.ReLU()
+        self.act2 = torch.nn.ReLU()
+
+    def forward(self, x, drugEdges, seEdges, drugNodes, seNodes, drugGraphBatch, nDrug):
+
+        x = self.nodesEmbedding(x[nDrug:])
+        x = x.squeeze(1)
+
+
+        xDrug, edge_index, batch = drugGraphBatch.x, drugGraphBatch.edge_index, drugGraphBatch.batch
+
+        xDrug = self.mact1(self.mlinear1(xDrug))
+        xDrug = self.mact2(self.mlinear2(xDrug))
+
+        xDrug = F.relu(self.conv1(xDrug, edge_index))
+
+        v  = self.pool1(xDrug, edge_index, None, batch)
+        xDrug, edge_index, _, batch, _, _ = v
+        x1 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+
+        xDrug = F.relu(self.conv2(xDrug, edge_index))
+
+        xDrug, edge_index, _, batch, _, _ = self.pool2(xDrug, edge_index, None, batch)
+        x2 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+
+        xDrug = F.relu(self.conv3(xDrug, edge_index))
+
+        xDrug, edge_index, _, batch, _, _ = self.pool3(xDrug, edge_index, None, batch)
+        x3 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+
+        xDrug = x1 + x2 + x3
+
+        xDrug = self.lin1(xDrug)
+        xDrug = self.act1(xDrug)
+        xDrug = self.lin2(xDrug)
+        xDrug = self.act2(xDrug)
+
+
+
+        x = torch.cat((xDrug, x), dim=0)
+
+        # Conv Drug:
+        x = self.convD1(x, drugEdges)
+        x = F.relu(x)
+        x = self.convD2(x, drugEdges)
+        x = F.relu(x)
+        # Conv SE:
+        # x = self.convS1(x, seEdges)
+        # x = F.relu(x)
+        # x = self.convS2(x, seEdges)
+        # x = F.relu(x)
+
+        drugEmbedding = x[drugNodes]
+        seEmbedding = x[seNodes]
+        # re = torch.sigmoid(re)
+        return drugEmbedding, seEmbedding, x
+
+('Undirected graph: ', False)
+MPNNX
+<models.MPNNX4.MPNNX4 object at 0x7fa6a6f33990>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_0
+('Number of substructures, proteins, pathways, drugs, se: ', 888, 1448, 330, 969, 598)
+((872, 598), (872, 598), 109751.66, 88676.0)
+('Error: ', tensor(75096.4062, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5274065197104711, 0.18215429081028092)
+('Test: AUC, AUPR: ', 0.5169867433732303, 0.1886708093944155)
+((872, 598), (872, 598), 90841.586, 88676.0)
+('Error: ', tensor(58990.1055, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7891645915465043, 0.49021273723489606)
+('Test: AUC, AUPR: ', 0.7447941008228882, 0.417567007611231)
+((872, 598), (872, 598), 90595.586, 88676.0)
+('Error: ', tensor(56025.5859, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8099340206073528, 0.5527238197983942)
+('Test: AUC, AUPR: ', 0.7510039772986696, 0.44543818341698027)
+((872, 598), (872, 598), 94517.25, 88676.0)
+('Error: ', tensor(54806.5312, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8210815921348809, 0.5734670010868677)
+('Test: AUC, AUPR: ', 0.7513879795797789, 0.4336025743139829)
+((872, 598), (872, 598), 97301.39, 88676.0)
+('Error: ', tensor(53713.7266, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8313718533032044, 0.5928386699828074)
+('Test: AUC, AUPR: ', 0.7507157022017668, 0.4369143219608964)
+((872, 598), (872, 598), 95045.59, 88676.0)
+('Error: ', tensor(53074.1367, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8367364340402696, 0.5995324277120555)
+('Test: AUC, AUPR: ', 0.7539161227780969, 0.4269377189714303)
+((872, 598), (872, 598), 96933.09, 88676.0)
+('Error: ', tensor(52665.5117, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8403807253805416, 0.6055350895467689)
+('Test: AUC, AUPR: ', 0.7463280470341167, 0.41494482931137494)
+((872, 598), (872, 598), 93826.91, 88676.0)
+('Error: ', tensor(51724.5273, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8482080665397633, 0.6184810377791186)
+('Test: AUC, AUPR: ', 0.7478938141822995, 0.4178377293699082)
+((872, 598), (872, 598), 105691.91, 88676.0)
+('Error: ', tensor(51362.2422, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8524084174909596, 0.6287353060185247)
+('Test: AUC, AUPR: ', 0.7437610389515086, 0.41380861187053664)

@@ -62,59 +62,66 @@ class Net4(torch.nn.Module):
         self.bn2 = torch.nn.BatchNorm1d(64)
         self.act1 = torch.nn.ReLU()
         self.act2 = torch.nn.ReLU()
+        self.isFirst = True
 
 
 
 
     def forward(self, x, drugEdges, seEdges, drugNodes, seNodes, drugGraphBatch, nDrug):
-
-        x = self.nodesEmbedding(x[nDrug:])
-        x = x.squeeze(1)
-
-
-        xDrug, edge_index, batch = drugGraphBatch.x, drugGraphBatch.edge_index, drugGraphBatch.batch
-
-        xDrug = self.mact1(self.mlinear1(xDrug))
-        xDrug = self.mact2(self.mlinear2(xDrug))
-
-        xDrug = F.relu(self.conv1(xDrug, edge_index))
-
-        v  = self.pool1(xDrug, edge_index, None, batch)
-        xDrug, edge_index, _, batch, _, _ = v
-        x1 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
-
-        xDrug = F.relu(self.conv2(xDrug, edge_index))
-
-        xDrug, edge_index, _, batch, _, _ = self.pool2(xDrug, edge_index, None, batch)
-        x2 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
-
-        xDrug = F.relu(self.conv3(xDrug, edge_index))
-
-        xDrug, edge_index, _, batch, _, _ = self.pool3(xDrug, edge_index, None, batch)
-        x3 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
-
-        xDrug = x1 + x2 + x3
-
-        xDrug = self.lin1(xDrug)
-        xDrug = self.act1(xDrug)
-        xDrug = self.lin2(xDrug)
-        xDrug = self.act2(xDrug)
-
-
-
-        x = torch.cat((xDrug, x), dim=0)
+        # x = self.nodesEmbedding(x[nDrug:])
+        # x = x.squeeze(1)
+        #
+        #
+        # xDrug, edge_index, batch = drugGraphBatch.x, drugGraphBatch.edge_index, drugGraphBatch.batch
+        #
+        # xDrug = self.mact1(self.mlinear1(xDrug))
+        # xDrug = self.mact2(self.mlinear2(xDrug))
+        #
+        # xDrug = F.relu(self.conv1(xDrug, edge_index))
+        #
+        # v  = self.pool1(xDrug, edge_index, None, batch)
+        # xDrug, edge_index, _, batch, _, _ = v
+        # x1 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+        #
+        # xDrug = F.relu(self.conv2(xDrug, edge_index))
+        #
+        # xDrug, edge_index, _, batch, _, _ = self.pool2(xDrug, edge_index, None, batch)
+        # x2 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+        #
+        # xDrug = F.relu(self.conv3(xDrug, edge_index))
+        #
+        # xDrug, edge_index, _, batch, _, _ = self.pool3(xDrug, edge_index, None, batch)
+        # x3 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+        #
+        # xDrug = x1 + x2 + x3
+        #
+        # xDrug = self.lin1(xDrug)
+        # xDrug = self.act1(xDrug)
+        # xDrug = self.lin2(xDrug)
+        # xDrug = self.act2(xDrug)
+        #
+        #
+        #
+        # x = torch.cat((xDrug, x), dim=0)
 
         # Conv Drug:
+        if self.isFirst:
+            self.nodesEmbedding.weight.data[:nDrug, :].zero_()
+            self.isFirst = False
+            print (self.nodesEmbedding.weight.data[0, :])
+
+        x = self.nodesEmbedding(x)
         x = self.convD1(x, drugEdges)
         x = F.relu(x)
         x = self.convD2(x, drugEdges)
         x = F.relu(x)
         # Conv SE:
-        x = self.convS1(x, seEdges)
-        x = F.relu(x)
-        x = self.convS2(x, seEdges)
-        x = F.relu(x)
+        # x = self.convS1(x, seEdges)
+        # x = F.relu(x)
+        # x = self.convS2(x, seEdges)
+        # x = F.relu(x)
 
+        # x = self.nodesEmbedding(x)
         drugEmbedding = x[drugNodes]
         seEmbedding = x[seNodes]
         # re = torch.sigmoid(re)

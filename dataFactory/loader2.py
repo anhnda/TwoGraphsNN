@@ -26,7 +26,16 @@ class BioLoader2:
         self.drugName2SMILE = None
         self.drugId2Index = None
         self.drugIndex2Id = None
+    def loadValidInchi(self):
 
+        path = BioLoader2.getPathNTimeIFold(0, 0)
+        fin = open(path)
+        self.validInchi = set()
+        while True:
+            line = fin.readline()
+            if line == "":
+                break
+            self.validInchi.add(line.split("|")[0])
     def loadDrugName2Info(self):
         f = open(config.DRUGBANK_ATC_INCHI)
         dDrugName2Inchi = dict()
@@ -72,7 +81,7 @@ class BioLoader2:
                 parts = line.strip().split("|")
                 inchi = parts[0]
                 morganString = parts[1].split(",")
-                fingerPrint = np.zeros(config.CHEM_FINGERPRINT_SIZE, dtype=int)
+                fingerPrint = np.zeros(config.N_MORGAN, dtype=int)
                 for i, v in enumerate(morganString):
                     if float(v) == 1:
                         fingerPrint[i] = 1
@@ -86,6 +95,8 @@ class BioLoader2:
             dInchi2Features = dict()
             for k, v in dInchi2Morgan.items():
                 vPubchem = dInchi2PubChem[k]
+                # print (len(v), len(vPubchem))
+
                 v = np.concatenate((v, vPubchem))
                 dInchi2Features[k] = v
         elif config.MORGAN:
@@ -94,7 +105,10 @@ class BioLoader2:
             dInchi2Features = utils.load_obj(config.PUBCHEM_FILE)
         inchiKeyList = sorted(list(dInchi2Features.keys()))
         dBit2Inchi = dict()
+        self.loadValidInchi()
         for k in inchiKeyList:
+            if k not in self.validInchi:
+                continue
             v = dInchi2Features[k]
             chemId = utils.get_update_dict_index(self.drugInchiKey2Id, k)
             self.drugId2Features[chemId] = v
@@ -136,10 +150,7 @@ class BioLoader2:
                 for vv in v:
                     proteinIdList.append(self.protein2Id[vv])
 
-                ar = np.zeros(self.nProtein, dtype=int)
-                for vv in proteinIdList:
-                    ar[vv] = 1
-                self.drugId2ProteinIndices[drugId] = ar
+                self.drugId2ProteinIndices[drugId] = proteinIdList
 
     def loadDART(self):
         def loadMapFromFile(path):
@@ -446,12 +457,15 @@ class BioLoader2:
                         drug_edge_index.append([pathWayId + self.PATHWAY_OFFSET, proteinId + self.PROTEIN_OFFSET])
                         self.matProtein2Pathway[proteinId, pathWayId] = 1
 
+
+        print ("I: ", self.nDrug, config.CHEM_FINGERPRINT_SIZE)
         self.matDrugChem = np.zeros((self.nDrug, config.CHEM_FINGERPRINT_SIZE))
         # Drug 2 Chem:
 
         for drugId in range(self.nDrug):
             chems = self.drugId2Features[drugId]
-            for chemId in chems:
+            nonZeros = np.nonzero(chems)[0]
+            for chemId in nonZeros:
                 chemId = int(chemId)
                 drug_edge_index.append([chemId + self.CHEM_OFFSET, drugId + self.DRUG_OFFSET])
                 self.matDrugChem[drugId, chemId] = 1
@@ -524,8 +538,9 @@ class BioLoader2:
                 break
             line = line.strip()
             if line.startswith("#"):
-                if allTrain == False:
-                    currenDrugSet = drugTestIds
+                if not allTrain:
+                    if line.__contains__("Test"):
+                        currenDrugSet = drugTestIds
                 continue
             parts = line.split("|")
             inchi = parts[0]
@@ -592,8 +607,43 @@ class BioLoader2:
         #         self.edge_index.append([drugId + self.DRUG_OFFSET, seId + self.SE_OFFSET])
         #         self.edge_index.append([seId + self.SE_OFFSET, drugId + self.DRUG_OFFSET])
 
+
+
+
+        drugTrainNodeIds = list()
+        drugTestNodeIds = list()
+        drugTestNodeSet = set()
+        for drugId in self.drugTrainIdList:
+            drugTrainNodeIds.append(drugId + self.DRUG_OFFSET)
+        for drugId in self.drugTestIdList:
+            drugTestNodeIds.append(drugId + self.DRUG_OFFSET)
+            drugTestNodeSet.add(drugId + self.DRUG_OFFSET)
+
+        filtered_drug_edge_index = []
+        if not config.PROTEIN_TEST:
+            if not config.UN_DIRECTED:
+                for srcId, targetId in self.drug_edge_index:
+                    if targetId in drugTestNodeSet and \
+                            self.PROTEIN_OFFSET <= srcId < self.PROTEIN_OFFSET + self.nProtein:
+                        continue
+
+                    else:
+                        filtered_drug_edge_index.append([srcId, targetId])
+            else:
+                for srcId, targetId in self.drug_edge_index:
+                    if targetId in drugTestNodeSet and self.PROTEIN_OFFSET <= srcId < self.PROTEIN_OFFSET + self.nProtein:
+                        continue
+                    elif srcId in drugTestNodeSet and self.PROTEIN_OFFSET <= targetId < self.PROTEIN_OFFSET + self.nProtein:
+                        continue
+                    else:
+                        filtered_drug_edge_index.append([srcId, targetId])
+
+            self.drug_edge_index = filtered_drug_edge_index
+            self.testInpMat[:, config.CHEM_FINGERPRINT_SIZE:].fill(0)
+
         drug_edge_index = torch.tensor(self.drug_edge_index, dtype=torch.long).t().contiguous()
         se_edge_index = torch.tensor(self.se_edge_index, dtype=torch.long).t().contiguous()
+
 
         if config.UN_DIRECTED:
             drug_edge_index = to_undirected(drug_edge_index)
@@ -604,12 +654,6 @@ class BioLoader2:
 
         print("Num edges: ", self.drugGraphData.num_edges, self.seGraphData.num_edges)
 
-        drugTrainNodeIds = list()
-        drugTestNodeIds = list()
-        for drugId in self.drugTrainIdList:
-            drugTrainNodeIds.append(drugId + self.DRUG_OFFSET)
-        for drugId in self.drugTestIdList:
-            drugTestNodeIds.append(drugId + self.DRUG_OFFSET)
         seNodeIds = list()
         for seId in range(self.nSe):
             seNodeIds.append(seId + self.SE_OFFSET)
@@ -621,7 +665,7 @@ class BioLoader2:
 
     @staticmethod
     def getTrainPathPref():
-        pathTrainPref = "%s%s" % (config.PATH_KFOLD_ATC_INCHIKEY_SIDEEFFECT_BYDRUG, config.TRAIN_PREFIX)
+        pathTrainPref = "%s%s" % (config.PATH_KFOLD_ATC_INCHIKEY_SIDEEFFECT_BYDRUG, config.P3_PREFIX)
         return pathTrainPref
 
     @staticmethod
@@ -629,11 +673,17 @@ class BioLoader2:
         pathTrain = "%s%s" % (BioLoader2.getTrainPathPref(), iFold)
         return pathTrain
 
+    @staticmethod
+    def getPathNTimeIFold(timeFold, iFold):
+        pathTrain = "%s%s_%s" % (BioLoader2.getTrainPathPref(), timeFold, iFold)
+        return pathTrain
+
 
 if __name__ == "__main__":
-    bioloader2 = BioLoader2()
-
-    iFold = 1
-    path = BioLoader2.getPathIFold(iFold)
-    bioloader2.createTrainTestGraph(path)
-    print(bioloader2.drugGraphData.is_undirected(), bioloader2.seGraphData.is_undirected())
+    # bioloader2 = BioLoader2()
+    #
+    # iFold = 1
+    # path = BioLoader2.getPathIFold(iFold)
+    # bioloader2.createTrainTestGraph(path)
+    # print(bioloader2.drugGraphData.is_undirected(), bioloader2.seGraphData.is_undirected())
+    pass

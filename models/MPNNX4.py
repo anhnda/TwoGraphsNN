@@ -72,7 +72,7 @@ class MPNNX4:
         return loss, out
 
     def train(self, bioLoader4, debug=True, pred=True):
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
+        optimizer = torch.optim.Adagrad(self.model.parameters(), lr=0.01)
         loss = torch.nn.MSELoss()
         # loss = torch.nn.BCELoss()
 

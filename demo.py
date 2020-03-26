@@ -1,12 +1,9 @@
 import torch
+
 import numpy as np
-from pysmiles import read_smiles
 
-smiles = '[H][C@@]12CC[C@](O)(C(=O)CO)[C@@]1(C)C[C@H](O)[C@@]1(F)[C@@]2([H])CCC2=CC(=O)CC[C@]12C'
-mol = read_smiles(smiles)
 
-print (mol)
-nodes = mol._node
-keys = nodes.keys()
-v = sorted(keys)
-print (v)
+def getT(m1, m2, v1, v2, n1, n2):
+    return (m1-m2) / (v1* v1/ n1 + v2 * v2 / n2)
+
+print (getT(0.7654, 0.0037, 0.7612, 0.0036, 10, 10))

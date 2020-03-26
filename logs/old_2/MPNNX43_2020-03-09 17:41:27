@@ -1,0 +1,181 @@
+    def __init__(self, numNode=10000, numAtomFeature=0):
+        super(Net4_3, self).__init__()
+
+        self.convD1 = GCNConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convD2 = GCNConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+
+        self.convS1 = GCNConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convS2 = GCNConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+
+        self.L1 = Linear(config.CHEM_FINGERPRINT_SIZE, config.EMBED_DIM * 2)
+        self.actL1 = F.relu
+        self.L2 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.actL2 = F.relu
+
+        self.linear1 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.act1 = F.relu
+        self.linear2 = Linear(config.EMBED_DIM, 1)
+        self.act2 = F.relu
+
+        self.nodesEmbedding = torch.nn.Embedding(num_embeddings=numNode + 1, embedding_dim=config.EMBED_DIM)
+        self.nodesEmbedding.weight.data.uniform_(0.001, 0.3)
+
+
+
+        # Molecule graph neural net
+
+        self.mlinear1 = Linear(numAtomFeature, config.EMBED_DIM * 2)
+        self.mact1 = F.relu
+        self.mlinear2 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.mact2 = F.relu
+
+        self.conv1 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.pool1 = TopKPooling(config.EMBED_DIM, ratio=0.8)
+        self.conv2 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.pool2 = TopKPooling(config.EMBED_DIM, ratio=0.8)
+        self.conv3 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.pool3 = TopKPooling(config.EMBED_DIM, ratio=0.8)
+        self.lin1 = torch.nn.Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.lin2 = torch.nn.Linear(config.EMBED_DIM, config.EMBED_DIM)
+
+
+        self.bn1 = torch.nn.BatchNorm1d(128)
+        self.bn2 = torch.nn.BatchNorm1d(64)
+        self.act1 = torch.nn.ReLU()
+        self.act2 = torch.nn.ReLU()
+
+    def forward(self, x, drugEdges, seEdges, drugNodes, seNodes, drugGraphBatch, nDrug):
+
+        x = self.nodesEmbedding(x)
+        x = x.squeeze(1)
+
+
+        # xDrug, edge_index, batch = drugGraphBatch.x, drugGraphBatch.edge_index, drugGraphBatch.batch
+        #
+        # xDrug = self.mact1(self.mlinear1(xDrug))
+        # xDrug = self.mact2(self.mlinear2(xDrug))
+        #
+        # xDrug = F.relu(self.conv1(xDrug, edge_index))
+        #
+        # v  = self.pool1(xDrug, edge_index, None, batch)
+        # xDrug, edge_index, _, batch, _, _ = v
+        # x1 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+        #
+        # xDrug = F.relu(self.conv2(xDrug, edge_index))
+        #
+        # xDrug, edge_index, _, batch, _, _ = self.pool2(xDrug, edge_index, None, batch)
+        # x2 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+        #
+        # xDrug = F.relu(self.conv3(xDrug, edge_index))
+        #
+        # xDrug, edge_index, _, batch, _, _ = self.pool3(xDrug, edge_index, None, batch)
+        # x3 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+        #
+        # xDrug = x1 + x2 + x3
+        #
+        # xDrug = self.lin1(xDrug)
+        # xDrug = self.act1(xDrug)
+        # xDrug = self.lin2(xDrug)
+        # xDrug = self.act2(xDrug)
+        # x = torch.cat((xDrug, x), dim=0)
+
+        # Conv Drug:
+        x = self.convD1(x, drugEdges)
+        x = F.relu(x)
+        x = self.convD2(x, drugEdges)
+        x = F.relu(x)
+
+        # Conv SE:
+        x = self.convS1(x, seEdges)
+        x = F.relu(x)
+        x = self.convS2(x, seEdges)
+        x = F.relu(x)
+
+        drugEmbedding = x[drugNodes]
+        seEmbedding = x[seNodes]
+        # re = torch.sigmoid(re)
+        return drugEmbedding, seEmbedding, x
+
+('Undirected graph: ', False)
+MPNNX43
+<models.MPNNX4_3.MPNNX4_3 object at 0x7fb7fbe3edd0>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_0
+('Number of substructures, proteins, pathways, drugs, se: ', 888, 1448, 330, 969, 598)
+((872, 598), (872, 598), 22620.223, 88676.0)
+('Error: ', tensor(81695.3438, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5489786110181202, 0.1952936120254502)
+('Test: AUC, AUPR: ', 0.5363717084720134, 0.19308631690973463)
+((872, 598), (872, 598), 67579.125, 88676.0)
+('Error: ', tensor(73701.1719, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5776658427378601, 0.21452214816504828)
+('Test: AUC, AUPR: ', 0.5505428196601533, 0.2030429355272013)
+((872, 598), (872, 598), 80692.07, 88676.0)
+('Error: ', tensor(70346.7969, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7021085967323877, 0.33353921882129767)
+('Test: AUC, AUPR: ', 0.639060124204319, 0.2731424412183596)
+((872, 598), (872, 598), 89413.164, 88676.0)
+('Error: ', tensor(62939.0547, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7815612454849258, 0.4613191585902763)
+('Test: AUC, AUPR: ', 0.7160173838611757, 0.3774978769044194)
+((872, 598), (872, 598), 92209.695, 88676.0)
+('Error: ', tensor(58681.0508, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7987021977258785, 0.5140983290526362)
+('Test: AUC, AUPR: ', 0.7316889469604967, 0.4085263886929261)
+((872, 598), (872, 598), 92584.56, 88676.0)
+('Error: ', tensor(56345.7969, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8110315751785626, 0.5570040934173268)
+('Test: AUC, AUPR: ', 0.7337477633839911, 0.4080392312538079)
+((872, 598), (872, 598), 89124.26, 88676.0)
+('Error: ', tensor(54949.9023, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8189288177258567, 0.5716928224193825)
+('Test: AUC, AUPR: ', 0.7374507196321516, 0.40688505432305244)
+((872, 598), (872, 598), 94753.414, 88676.0)
+('Error: ', tensor(53972.1406, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8284029255638793, 0.5877452681299341)
+('Test: AUC, AUPR: ', 0.7424717161931169, 0.4137860459714777)
+((872, 598), (872, 598), 99505.71, 88676.0)
+('Error: ', tensor(53358.2539, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8337770263677251, 0.5972398013091966)
+('Test: AUC, AUPR: ', 0.745049566587042, 0.42408087334576494)
+((872, 598), (872, 598), 86343.99, 88676.0)
+('Error: ', tensor(52988.5312, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8390782890006663, 0.6060744807772)
+('Test: AUC, AUPR: ', 0.7493297620019634, 0.4275505965790659)
+((872, 598), (872, 598), 89734.88, 88676.0)
+('Error: ', tensor(52436.2031, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8422581977561131, 0.6116894885887376)
+('Test: AUC, AUPR: ', 0.7515412510269578, 0.43154504711587094)
+((872, 598), (872, 598), 100987.03, 88676.0)
+('Error: ', tensor(52272.4297, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8436250544049602, 0.613707641810872)
+('Test: AUC, AUPR: ', 0.7522123327164402, 0.4327603484079817)
+((872, 598), (872, 598), 86332.89, 88676.0)
+('Error: ', tensor(52190.6328, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8466067942569256, 0.6189021993423889)
+('Test: AUC, AUPR: ', 0.7523365190902018, 0.4293406344967303)
+((872, 598), (872, 598), 102109.5, 88676.0)
+('Error: ', tensor(51981.0273, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8466091845955049, 0.6188038037283997)
+('Test: AUC, AUPR: ', 0.7530139287158818, 0.43273127071570444)
+((872, 598), (872, 598), 88384.38, 88676.0)
+('Error: ', tensor(51850.5625, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8481809269876455, 0.6221895885653943)
+('Test: AUC, AUPR: ', 0.7517884911750445, 0.42845020821627733)
+((872, 598), (872, 598), 98305.46, 88676.0)
+('Error: ', tensor(51655.1094, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.847758392610353, 0.6215418325343601)
+('Test: AUC, AUPR: ', 0.7517061098376028, 0.4297741615599149)
+((872, 598), (872, 598), 90427.53, 88676.0)
+('Error: ', tensor(51607.6445, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8488408092999328, 0.6237110396520219)
+('Test: AUC, AUPR: ', 0.7513150766275419, 0.42850325496977526)
+((872, 598), (872, 598), 98137.55, 88676.0)
+('Error: ', tensor(51513.7422, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8489706755510794, 0.6236294117421194)
+('Test: AUC, AUPR: ', 0.75039181781807, 0.4276944496590459)
+((872, 598), (872, 598), 93176.086, 88676.0)
+('Error: ', tensor(51409.0469, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8497659592761194, 0.625247775163316)
+('Test: AUC, AUPR: ', 0.7493066623810947, 0.42463481529884384)
+Train: 0.8498 0.6252
+Test: 0.7493 0.4246

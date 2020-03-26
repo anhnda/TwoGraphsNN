@@ -55,11 +55,11 @@ class Net(torch.nn.Module):
 
         x = self.conv1(x, edge_index)
         # x = sigmoid(x)
-        # x = F.relu(x)
+        x = F.relu(x)
 
 
         x = self.conv2(x, edge_index)
-        # x = sigmoid(x)
+        x = F.relu(x)
 
         # x = F.relu(self.conv1(x, edge_index))
         # x = F.relu(self.conv2(x, edge_index))

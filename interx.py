@@ -9,8 +9,8 @@ def interx():
     bioLoader2 = BioLoader2()
     trainPath = BioLoader2.getPathIFold(0)
     bioLoader2.createTrainTestGraph(trainPath,allTrain=True)
-    from models.MPNNX import MPNNX
-    model = MPNNX()
+    from models.MPNNX1 import MPNNX1
+    model = MPNNX1()
     model.resetModel()
     drugEmbedding, seEmbedding = model.train(bioLoader2, debug=False, pred=False)
     np.savetxt("%s/ALL_DRUG.txt" %config.OUTPUT_DIR, drugEmbedding.detach().numpy())

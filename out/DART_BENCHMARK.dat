@@ -7,13 +7,6 @@ warfarin|hypoglycaemia|P11712
 glipizide|hypoglycaemia|P11712
 tolbutamide|hypoglycaemia|P11712
 paroxetine|bradycardia|P10635
-paroxetine|hepatotoxicity|P10635
-ciprofloxacin|myositis|P08684
-fluvoxamine|myositis|P08684
-nefazodone|myositis|P08684
-ciprofloxacin|myopathy|P08684
-fluvoxamine|myopathy|P08684
-nefazodone|myopathy|P08684,P04035
 ciprofloxacin|renal failure|P08684
 fluvoxamine|renal failure|P08684
 nefazodone|renal failure|P08684
@@ -45,8 +38,6 @@ indomethacin|vomiting|P23219,P35354
 sulindac|vomiting|P23219,P35354
 piroxicam|vomiting|P23219,P35354
 diflunisal|vomiting|P23219,P35354
-ciprofloxacin|respiratory depression|P05177
-fluvoxamine|respiratory depression|P05177
 dobutamine|cardiac failure|P08588
 isoprenaline|cardiac failure|P08588
 ephedrine|cardiac failure|P08588
@@ -54,13 +45,6 @@ propranolol|cardiac failure|P08588
 betaxolol|cardiac failure|P08588
 metoprolol|cardiac failure|P08588
 labetalol|cardiac failure|P08588
-dobutamine|sexual dysfunction|P08588
-isoprenaline|sexual dysfunction|P08588
-ephedrine|sexual dysfunction|P08588
-propranolol|sexual dysfunction|P08588
-betaxolol|sexual dysfunction|P08588
-metoprolol|sexual dysfunction|P08588
-labetalol|sexual dysfunction|P08588
 dobutamine|muscular weakness|P08588
 isoprenaline|muscular weakness|P08588
 ephedrine|muscular weakness|P08588
@@ -89,77 +73,63 @@ bosentan|liver injury|O95342
 troglitazone|liver injury|O95342
 acetaminophen|hypotension|P35348
 epinephrine|hypotension|P35348
-cocaine|hypotension|P35348
 phenylephrine|hypotension|P35348
 chlorpromazine|hypotension|P35348,P21728,P14416
 thioridazine|hypotension|P35348,P21728,P14416
 clozapine|hypotension|P35348,P21728,P14416
 risperidone|hypotension|P35348,P14416
-phenoxybenzamine|hypotension|P35348
 prazosin|hypotension|P35348
 labetalol|hypotension|P35348
 acetaminophen|flushing|P35348
 epinephrine|flushing|P35348
-cocaine|flushing|P35348
 phenylephrine|flushing|P35348
 chlorpromazine|flushing|P35348
 thioridazine|flushing|P35348
 clozapine|flushing|P35348
 risperidone|flushing|P35348
-phenoxybenzamine|flushing|P35348
 prazosin|flushing|P35348
 labetalol|flushing|P35348
 acetaminophen|tachycardia|P35348
 epinephrine|tachycardia|P35348
-cocaine|tachycardia|P35348
 phenylephrine|tachycardia|P35348
 chlorpromazine|tachycardia|P35348
 thioridazine|tachycardia|P35348
 clozapine|tachycardia|P35348
 risperidone|tachycardia|P35348
-phenoxybenzamine|tachycardia|P35348
 prazosin|tachycardia|P35348
 acetaminophen|nasal congestion|P35348
 epinephrine|nasal congestion|P35348
-cocaine|nasal congestion|P35348
 phenylephrine|nasal congestion|P35348
 chlorpromazine|nasal congestion|P35348
 thioridazine|nasal congestion|P35348
 clozapine|nasal congestion|P35348
 risperidone|nasal congestion|P35348
-phenoxybenzamine|nasal congestion|P35348
 prazosin|nasal congestion|P35348
 labetalol|nasal congestion|P35348
 acetaminophen|hypertension|P35348
 epinephrine|hypertension|P35348
-cocaine|hypertension|P35348,P23975
 phenylephrine|hypertension|P35348
 chlorpromazine|hypertension|P35348
 thioridazine|hypertension|P35348
 clozapine|hypertension|P35348
 risperidone|hypertension|P35348
-phenoxybenzamine|hypertension|P35348,P23975
 prazosin|hypertension|P35348
 labetalol|hypertension|P35348
 ciprofloxacin|drowsiness|P14867
 ofloxacin|drowsiness|P14867
 naloxone|drowsiness|P14867
-lindane|drowsiness|P14867
 isoniazid|drowsiness|P14867
 ciprofloxacin|amnesia|P14867
 ofloxacin|amnesia|P14867
 naloxone|amnesia|P14867
-lindane|amnesia|P14867
 isoniazid|amnesia|P14867
 ciprofloxacin|coma|P14867
 ofloxacin|coma|P14867
 naloxone|coma|P14867
-lindane|coma|P14867
 isoniazid|coma|P14867
 testosterone|oedema|P10275
 testosterone|gynaecomastia|P10275
 etoposide|vomiting|Q02880,P11388
-etoposide|myelosuppression|Q02880,P11388
 etoposide|alopecia|Q02880,P11388
 chlorpromazine|dizziness|P35367
 haloperidol|dizziness|P35367
@@ -188,48 +158,29 @@ promethazine|dry mouth|P35367
 cyclophosphamide|nausea|P06276
 donepezil|nausea|P22303,P06276
 galantamine|nausea|P06276
-physostigmine|nausea|P22303,P06276
 rivastigmine|nausea|P22303,P06276
 cyclophosphamide|vomiting|P06276
 donepezil|vomiting|P06276
 galantamine|vomiting|P06276
-physostigmine|vomiting|P06276
 rivastigmine|vomiting|P06276
 cyclophosphamide|diarrhoea|P06276
 donepezil|diarrhoea|P22303,P06276
 galantamine|diarrhoea|P06276
-physostigmine|diarrhoea|P22303,P06276
 rivastigmine|diarrhoea|P22303,P06276
 cyclophosphamide|dizziness|P06276
 donepezil|dizziness|P06276
 galantamine|dizziness|P06276
-physostigmine|dizziness|P06276
 rivastigmine|dizziness|P06276
 cyclophosphamide|asthenia|P06276
 donepezil|asthenia|P06276
 galantamine|asthenia|P06276
-physostigmine|asthenia|P06276
 rivastigmine|asthenia|P06276
 cyclophosphamide|anorexia|P06276
 donepezil|anorexia|P06276
 galantamine|anorexia|P06276
-physostigmine|anorexia|P06276
 rivastigmine|anorexia|P06276
-morphine|respiratory depression|P35372
-codeine|respiratory depression|P35372
-methadone|respiratory depression|P35372
-pethidine|respiratory depression|P35372
-fentanyl|respiratory depression|P35372
-sufentanil|respiratory depression|P35372
-naloxone|respiratory depression|P35372
-naltrexone|respiratory depression|P35372
 imipramine|hypertension|P23975
-phenoxybenzamine|excitement|P23975
-imipramine|excitement|P23975
-cocaine|excitement|P23975
-phenoxybenzamine|convulsion|P23975
 imipramine|convulsion|P23975
-cocaine|convulsion|P23975
 captopril|hypotension|P12821
 enalapril|hypotension|P12821
 perindopril|hypotension|P12821
@@ -245,15 +196,10 @@ perindopril|neutropenia|P12821
 captopril|proteinuria|P12821
 enalapril|proteinuria|P12821
 perindopril|proteinuria|P12821
-chlorpromazine|extrapyramidal symptoms|P21728,P14416
-thioridazine|extrapyramidal symptoms|P21728,P14416
-haloperidol|extrapyramidal symptoms|P21728,P14416
-clozapine|extrapyramidal symptoms|P21728,P14416
 haloperidol|hypotension|P21728,P14416
 phenelzine|insomnia|P21397,P27338
 tranylcypromine|insomnia|P21397,P27338
 isocarboxazid|insomnia|P21397,P27338
-risperidone|extrapyramidal symptoms|P14416
 diltiazem|headache|Q13698,Q01668,Q13936,O60840
 diltiazem|constipation|Q13698,Q01668,Q13936,O60840
 diltiazem|cardiac failure|Q13698,Q01668,Q13936,O60840
@@ -268,8 +214,6 @@ theophylline|nausea|Q08493,P27815,Q08499,Q07343
 theophylline|vomiting|Q08493,P27815,Q08499,Q07343
 theophylline|nervousness|Q08493,P27815,Q08499,Q07343
 theophylline|tremor|Q08493,P27815,Q08499,Q07343
-itraconazole|myopathy|P04035
-erythromycin|myopathy|P04035
 itraconazole|rhabdomyolysis|P04035
 erythromycin|rhabdomyolysis|P04035
 nefazodone|rhabdomyolysis|P04035
@@ -284,21 +228,12 @@ isoniazid|sweating|P19801
 isoniazid|headache|P19801
 isoniazid|lightheadedness|P19801
 vigabatrin|nausea|P80404
-acetylcholine|sweating|P22303
 indomethacin|sweating|P22303
 donepezil|sweating|P22303
-physostigmine|sweating|P22303
 rivastigmine|sweating|P22303
-acetylcholine|nausea|P22303
-acetylcholine|diarrhoea|P22303
-acetaminophen|hepatotoxicity|Q14994
-phenobarbital|hepatotoxicity|Q14994
-methotrexate|myelosuppression|P00374
 phenytoin|ataxia|Q9NY72,O60939,Q07699
 carbamazepine|ataxia|Q9NY72,O60939,Q07699
 phenytoin|vertigo|Q9NY72,O60939,Q07699
 carbamazepine|vertigo|Q9NY72,O60939,Q07699
-phenytoin|hirsutism|Q9NY72,O60939,Q07699
-carbamazepine|hirsutism|Q9NY72,O60939,Q07699
 phenytoin|leukopenia|Q9NY72,O60939,Q07699
 carbamazepine|leukopenia|Q9NY72,O60939,Q07699

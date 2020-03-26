@@ -1,0 +1,6 @@
+MPNNX
+<models.MPNNX5.MPNNX5 object at 0x7f5f4b8f6f10>
+('Manual torch seed: ', 443181909)
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_0
+('Number of substructures, proteins, pathways, drugs, se: ', 2936, 1448, 330, 969, 598)
+((872, 330), (97, 330), (872, 598), (97, 598))

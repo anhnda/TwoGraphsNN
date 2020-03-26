@@ -1,0 +1,9 @@
+SCCA: 10 
+<models.baselines.sccar.SCCAR object at 0x7fbf8818d610>
+('Manual torch seed: ', 1772727637)
+('Config: ', 'Protein Test: ', True, 'KNN: ', 2)
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold20/ATCInchikeySideEffectByDrug.txt_P3_0
+('Number of substructures, proteins, pathways, drugs, se: ', 888, 1448, 330, 808, 331)
+((767, 2666), (41, 2666), (767, 331), (41, 331))
+('VALIDATE SUM PROTEIN TRAIN: ', 23437.0)
+('VALIDATE SUM PROTEIN TEST: ', 1206.0)

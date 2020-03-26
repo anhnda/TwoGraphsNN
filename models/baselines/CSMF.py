@@ -41,7 +41,7 @@ class CSMF:
             self.N = np.zeros((self.nSE, self.nSE), dtype=float)
             for i in range(self.nSE):
                 for j in range(i, self.nSE):
-                    v = utils.getTanimotoScore(seMat[i], seMat[j])
+                    v = utils.getCosin(seMat[i], seMat[j])
                     self.N[i, j] = self.N[j, i] = v
         self.sumAdaGraF = np.zeros((self.nTrain, config.EMBED_DIM))
         self.sumAdaGraG = np.zeros((self.nSE, config.EMBED_DIM))

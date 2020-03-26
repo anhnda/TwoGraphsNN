@@ -89,8 +89,8 @@ class PSLRModel:
         self.name = "PSLR"
         self.repred = None
     def getParams(self):
-        return {"LR_C": config.LR_C, "R12": config.LAMBDA_R12}
-    def fitAndPredict(self, inputTrain, outputTrain, ppw, inputTest ):
+        return "PSLR"
+    def fitAndPredict(self, inputTrain, outputTrain, inputTest ):
         import warnings
         from sklearn.exceptions import ConvergenceWarning
         from models.baselines.slr import PSLR
@@ -104,7 +104,7 @@ class PSLRModel:
         nTest = inputTest.shape[0]
         print("PSLR for %s classes" % nClass)
         self.model = PSLR()
-        self.model.fit(inputTrain, outputTrain, ppw)
+        self.model.fit(inputTrain, outputTrain)
         outputs = self.model.predict(inputTest)
         # print("In Train: ", roc_auc_score(outputTrain.reshape(-1), reps.reshape(-1)))
         self.repred = self.model.predict(inputTrain)
@@ -113,7 +113,7 @@ class PSLRModel:
         print("\nDone")
         return outputs
 
-    def fit(self, inputTrain, outputTrain, ppw):
+    def fit(self, inputTrain, outputTrain):
         import warnings
         from sklearn.exceptions import ConvergenceWarning
         from models.baselines.slr import PSLR
@@ -126,7 +126,7 @@ class PSLRModel:
         reps = []
         print("PSLR for %s classes" % nClass)
         self.model = PSLR()
-        self.model.fit(inputTrain, outputTrain, ppw)
+        self.model.fit(inputTrain, outputTrain)
         # print("In Train: ", roc_auc_score(outputTrain.reshape(-1), reps.reshape(-1)))
         print("\nDone")
 

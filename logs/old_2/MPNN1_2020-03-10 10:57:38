@@ -1,0 +1,77 @@
+    def __init__(self, numNode=10000):
+        super(Net1, self).__init__()
+
+        self.conv1 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.conv2 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+
+        self.convD1 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convD2 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+
+        self.convS1 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convS2 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+
+        self.L1 = Linear(config.CHEM_FINGERPRINT_SIZE, config.EMBED_DIM * 2)
+        self.actL1 = F.relu
+        self.L2 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.actL2 = F.relu
+
+        self.linear1 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.act1 = F.relu
+        self.linear2 = Linear(config.EMBED_DIM, 1)
+        self.act2 = F.relu
+
+        self.nodesEmbedding = torch.nn.Embedding(num_embeddings=numNode + 1, embedding_dim=config.EMBED_DIM)
+        self.nodesEmbedding.weight.data.uniform_(0.001, 0.3)
+
+    def forward(self, x, edge_index, drugNodes, seNodes, drugFeatures):
+
+        #nDrug = drugFeatures.shape[0]
+        #x = self.nodesEmbedding(x[nDrug:])
+        #x = x.squeeze(1)
+
+        # xDrug = self.L1(drugFeatures)
+        # xDrug = self.actL1(xDrug)
+        # xDrug = self.L2(xDrug)
+        # xDrug = self.actL2(xDrug)
+        #
+        # x = torch.cat((xDrug, x), dim=0)
+        #
+        #
+        # x = self.conv1(x, edge_index)
+        # x = F.relu(x)
+        # x = self.conv2(x, edge_index)
+        # x = F.relu(x)
+
+        x = self.nodesEmbedding(x)
+        drugEmbedding = x[drugNodes]
+        seEmbedding = x[seNodes]
+
+
+        return drugEmbedding, seEmbedding, x
+
+('Undirected graph: ', False)
+MPNNX
+<models.MPNN1.MPNN1 object at 0x7faa5a69d950>
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_train_0
+('Number of substructures, proteins, pathways, drugs, se: ', 2936, 1448, 330, 969, 598)
+((872, 598), (872, 598), 589469.25, 88607.0)
+('Error: ', tensor(564708.1250, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5058243021078407, 0.17285402055516708)
+('Test: AUC, AUPR: ', 0.4689885246504072, 0.16740814384236702)
+((872, 598), (872, 598), 118527.5, 88607.0)
+('Error: ', tensor(71535.4141, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.6476109946108741, 0.3231762639567345)
+('Test: AUC, AUPR: ', 0.6016387106144374, 0.30326401066586417)
+((872, 598), (872, 598), 33585.24, 88607.0)
+('Error: ', tensor(69682.7969, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7430356255070445, 0.4924388460835221)
+('Test: AUC, AUPR: ', 0.7004549371521231, 0.42856670893383764)
+((872, 598), (872, 598), 30785.1, 88607.0)
+('Error: ', tensor(65943.3281, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7836651374136544, 0.5697439719697672)
+('Test: AUC, AUPR: ', 0.7273268084707734, 0.4482975732723789)
+((872, 598), (872, 598), 53266.96, 88607.0)
+('Error: ', tensor(57438.9258, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8226227835753395, 0.612203325614642)
+('Test: AUC, AUPR: ', 0.7359089550340174, 0.4509359260497883)
+((872, 598), (872, 598), 83590.12, 88607.0)

@@ -10,6 +10,7 @@ from torch_geometric.utils import to_undirected
 
 
 class BioLoader4:
+
     def __init__(self):
         self.drugInchiKey2Id = dict()
         # self.sideEffectName2Id = dict()
@@ -29,7 +30,15 @@ class BioLoader4:
 
         self.moleculeFactory = MoleculeFactory.ModeculeFactory()
 
-
+    def loadValidInchi(self):
+        path = BioLoader4.getPathIFold(0)
+        fin = open(path)
+        self.validInchi = set()
+        while True:
+            line = fin.readline()
+            if line == "":
+                break
+            self.validInchi.add(line.split("|")[0])
 
     def loadDrugName2Info(self):
         f = open(config.DRUGBANK_ATC_INCHI)
@@ -76,7 +85,7 @@ class BioLoader4:
                 parts = line.strip().split("|")
                 inchi = parts[0]
                 morganString = parts[1].split(",")
-                fingerPrint = np.zeros(config.CHEM_FINGERPRINT_SIZE, dtype=int)
+                fingerPrint = np.zeros(config.N_MORGAN, dtype=int)
                 for i, v in enumerate(morganString):
                     if float(v) == 1:
                         fingerPrint[i] = 1
@@ -98,7 +107,14 @@ class BioLoader4:
             dInchi2Features = utils.load_obj(config.PUBCHEM_FILE)
         inchiKeyList = sorted(list(dInchi2Features.keys()))
         dBit2Inchi = dict()
+
+        self.loadValidInchi()
         for k in inchiKeyList:
+            if k in config.SKIP_INCHI:
+                continue
+            if k not in self.validInchi:
+                continue
+
             v = dInchi2Features[k]
             chemId = utils.get_update_dict_index(self.drugInchiKey2Id, k)
             self.drugId2Features[chemId] = v
@@ -120,7 +136,6 @@ class BioLoader4:
 
         self.graphBatch = self.moleculeFactory.createBatchGraph()
         self.N_ATOMFEATURE = self.moleculeFactory.N_FEATURE
-
 
     def loadDrug2Proteins(self):
         self.drug2ProteinList = loadingMap.loadDrugProteinMap()
@@ -144,17 +159,17 @@ class BioLoader4:
 
         self.nProtein = len(self.protein2Id)
         self.drugId2ProteinIndices = dict()
+
         for k, v in self.drug2ProteinList.items():
             drugId = utils.get_dict_index_only(self.drugInchiKey2Id, k)
+
             if drugId != -1:
                 proteinIdList = []
                 for vv in v:
                     proteinIdList.append(self.protein2Id[vv])
-
-                ar = np.zeros(self.nProtein, dtype=int)
-                for vv in proteinIdList:
-                    ar[vv] = 1
-                self.drugId2ProteinIndices[drugId] = ar
+                self.drugId2ProteinIndices[drugId] = proteinIdList
+            if drugId == 557:
+                print(proteinIdList)
 
     def loadDART(self):
         def loadMapFromFile(path):
@@ -219,16 +234,19 @@ class BioLoader4:
 
         # Write out:
         fout = open("%s/DART_BENCHMARK.dat" % config.OUTPUT_DIR, "w")
+        cc = 0
         for k, v in dDartBenchMark.items():
             drugId, seId = k
             drugName = self.drugInchi2Name[self.drugId2Inchikey[drugId]]
             seName = self.dseId2Names[seId]
             proList = []
+
             for p in v:
                 proList.append(self.id2ProteinName[p])
+            cc += len(proList)
             fout.write("%s|%s|%s\n" % (drugName, seName, ",".join(proList)))
         fout.close()
-        print("DART Info: Drug, Se, Protein, Pair: ", len(drugSetX), len(seSetX), len(proteinSetX), len(dDartBenchMark))
+        print("DART Info: Drug, Se, Protein, Pair, Total Protein: ", len(drugSetX), len(seSetX), len(proteinSetX), len(dDartBenchMark), cc)
         return dDartBenchMark
 
     def loadSideEffectOntology(self):
@@ -430,8 +448,6 @@ class BioLoader4:
         self.PATHWAY_OFFSET = NUM_NODES
         NUM_NODES += self.nPathway
 
-
-
         self.loadSideEffectOntology()
         self.nSe = len(self.seMeddraIds)
         self.SE_OFFSET = NUM_NODES
@@ -457,51 +473,68 @@ class BioLoader4:
                 for p in pathways:
                     pathWayId = utils.get_dict(self.pathway2Id, p, -1)
                     if pathWayId != -1:
-                        drug_edge_index.append([pathWayId + self.PATHWAY_OFFSET, proteinId + self.PROTEIN_OFFSET])
-                        self.matProtein2Pathway[proteinId, pathWayId] = 1
-
+                        #drug_edge_index.append([pathWayId + self.PATHWAY_OFFSET, proteinId + self.PROTEIN_OFFSET])
+                        # if config.FEAUTURE_UNDIRECTED:
+                        #     drug_edge_index.append([proteinId + self.PROTEIN_OFFSET, pathWayId + self.PATHWAY_OFFSET])
+                        # self.matProtein2Pathway[proteinId, pathWayId] = 1
+                        pass
 
         self.matDrugChem = np.zeros((self.nDrug, config.CHEM_FINGERPRINT_SIZE))
         # Drug 2 Chem Matrix Only:
 
         for drugId in range(self.nDrug):
             chems = self.drugId2Features[drugId]
-            for chemId in chems:
-                chemId = int(chemId)
-                self.matDrugChem[drugId, chemId] = 1
+            self.matDrugChem[drugId] = chems
 
         # Drug 2 Protein
 
         self.matDrugProtein = np.zeros((self.nDrug, self.nProtein))
         for drugId in range(self.nDrug):
             proteinIndices = self.drugId2ProteinIndices[drugId]
+
             for proteinId in proteinIndices:
                 proteinId = int(proteinId)
                 drug_edge_index.append([proteinId + self.PROTEIN_OFFSET, drugId + self.DRUG_OFFSET])
+                if config.FEAUTURE_UNDIRECTED:
+                    drug_edge_index.append([drugId + self.DRUG_OFFSET, proteinId + self.PROTEIN_OFFSET])
+
                 self.matDrugProtein[drugId, proteinId] = 1
+        print ("Total interacted proteins: ", np.sum(self.matDrugProtein))
+        # For 557
+        pid = 557
+        matDrug2Protein = self.matDrugProtein[pid, :]
+
+
 
         # Protein 2 Protein
-        self.loadPPI()
-        cc = 0
-        for pp in self.ppi:
-            p1, p2 = pp
-            proteinId1 = utils.get_dict_index_only(self.protein2Id, p1)
-            proteinId2 = utils.get_dict_index_only(self.protein2Id, p2)
-            if proteinId1 != -1 and proteinId2 != -1:
-                cc += 1
-                drug_edge_index.append([proteinId1 + self.PROTEIN_OFFSET, proteinId2 + self.PROTEIN_OFFSET])
-                drug_edge_index.append([proteinId2 + self.PROTEIN_OFFSET, proteinId1 + self.PROTEIN_OFFSET])
-        print("N Protein-Protein: ", cc)
+        if config.PPI:
+            self.loadPPI()
+            cc = 0
+            for pp in self.ppi:
+                p1, p2 = pp
+                proteinId1 = utils.get_dict_index_only(self.protein2Id, p1)
+                proteinId2 = utils.get_dict_index_only(self.protein2Id, p2)
+                if proteinId1 != -1 and proteinId2 != -1:
+                    cc += 1
+                    drug_edge_index.append([proteinId1 + self.PROTEIN_OFFSET, proteinId2 + self.PROTEIN_OFFSET])
+                    drug_edge_index.append([proteinId2 + self.PROTEIN_OFFSET, proteinId1 + self.PROTEIN_OFFSET])
+            print("N Protein-Protein: ", cc)
+        else:
+            print("Skip Protein-Protein")
 
         # Add DART
+        self.dartPair = set()
         if config.DART:
             self.loadDART()
             for k, v in self.dartBenchMark.items():
-                drugId, _ = k
+                drugId, seId = k
+                self.dartPair.add((drugId, seId))
                 proteinIds = v
                 for proteinId in proteinIds:
                     proteinId = int(proteinId)
                     drug_edge_index.append([proteinId + self.PROTEIN_OFFSET, drugId + self.DRUG_OFFSET])
+                    if config.FEAUTURE_UNDIRECTED:
+                        drug_edge_index.append([drugId + self.DRUG_OFFSET, proteinId + self.PROTEIN_OFFSET])
                     self.matDrugProtein[drugId, proteinId] = 1
 
         # drugPathway:
@@ -520,6 +553,8 @@ class BioLoader4:
                 seParentId = utils.get_dict(self.dMeddra2Id, parent, -1)
                 if seParentId != -1:
                     se_edge_index.append([seParentId + self.SE_OFFSET, seChildId + self.SE_OFFSET])
+                    if config.FEAUTURE_UNDIRECTED:
+                        se_edge_index.append([seChildId + self.SE_OFFSET, seParentId + self.SE_OFFSET])
 
         self.x = x
         self.drug_edge_index = drug_edge_index
@@ -534,6 +569,7 @@ class BioLoader4:
         drugTestIds = list()
         currenDrugSet = drugTrainIds
 
+        inchiSet = set()
         while True:
             line = fin.readline()
             if line == "":
@@ -545,9 +581,14 @@ class BioLoader4:
                 continue
             parts = line.split("|")
             inchi = parts[0]
+
+            # SKIP WRONG DATA:
+            if inchi == "JLKIGFTWXXRPMT-UHFFFAOYSA-N" or inchi == "JYGXADMDTFJGBT-VWUMJDOOSA-N":
+                continue
             sideEffects = parts[-1].split(",")
             drugId = utils.get_dict_index_only(self.drugInchiKey2Id, inchi)
             if drugId == -1:
+                print("No Inchi: ", inchi)
                 continue
 
             currenDrugSet.append(drugId)
@@ -579,6 +620,9 @@ class BioLoader4:
 
             for seId in seIds:
                 trainOutMatrix[rowId, seId] = 1
+                if (drugId, seId) in self.dartPair:
+                    trainOutMatrix[rowId, seId] = config.FACTOR
+
             rowId += 1
 
         testOutMatrix = np.zeros((len(drugTestIds), self.nSe), dtype=float)

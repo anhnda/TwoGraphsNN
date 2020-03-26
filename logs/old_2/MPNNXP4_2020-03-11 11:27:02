@@ -1,0 +1,222 @@
+class Net4P2(torch.nn.Module):
+    def __init__(self, numNode=10000, numAtomFeature=0):
+        super(Net4P2, self).__init__()
+
+        self.convD1 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convD2 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+
+        self.convS1 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convS2 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+
+        self.L1 = Linear(config.CHEM_FINGERPRINT_SIZE, config.EMBED_DIM * 2)
+        self.actL1 = F.relu
+        self.L2 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.actL2 = F.relu
+
+        self.linear1 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.act1 = F.relu
+        self.linear2 = Linear(config.EMBED_DIM, 1)
+        self.act2 = F.relu
+
+        self.nodesEmbedding = torch.nn.Embedding(num_embeddings=numNode + 1, embedding_dim=config.EMBED_DIM)
+        self.nodesEmbedding.weight.data.uniform_(0.001, 0.3)
+
+
+
+        # Molecule graph neural net
+
+        self.mlinear1 = Linear(numAtomFeature, config.EMBED_DIM * 2)
+        self.mact1 = F.relu
+        self.mlinear2 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.mact2 = F.relu
+
+        self.conv1 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.pool1 = TopKPooling(config.EMBED_DIM, ratio=0.8)
+        self.conv2 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.pool2 = TopKPooling(config.EMBED_DIM, ratio=0.8)
+        self.conv3 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.pool3 = TopKPooling(config.EMBED_DIM, ratio=0.8)
+        self.lin1 = torch.nn.Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.lin2 = torch.nn.Linear(config.EMBED_DIM, config.EMBED_DIM)
+
+
+        self.bn1 = torch.nn.BatchNorm1d(128)
+        self.bn2 = torch.nn.BatchNorm1d(64)
+        self.act1 = torch.nn.ReLU()
+        self.act2 = torch.nn.ReLU()
+        self.isFirst = True
+
+
+
+
+    def forward(self, x, drugEdges, seEdges, drugNodes, seNodes, drugGraphBatch, nDrug):
+        # x = self.nodesEmbedding(x[nDrug:])
+        # x = x.squeeze(1)
+        #
+        #
+        # xDrug, edge_index, batch = drugGraphBatch.x, drugGraphBatch.edge_index, drugGraphBatch.batch
+        #
+        # xDrug = self.mact1(self.mlinear1(xDrug))
+        # xDrug = self.mact2(self.mlinear2(xDrug))
+        #
+        # xDrug = F.relu(self.conv1(xDrug, edge_index))
+        #
+        # v  = self.pool1(xDrug, edge_index, None, batch)
+        # xDrug, edge_index, _, batch, _, _ = v
+        # x1 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+        #
+        # xDrug = F.relu(self.conv2(xDrug, edge_index))
+        #
+        # xDrug, edge_index, _, batch, _, _ = self.pool2(xDrug, edge_index, None, batch)
+        # x2 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+        #
+        # xDrug = F.relu(self.conv3(xDrug, edge_index))
+        #
+        # xDrug, edge_index, _, batch, _, _ = self.pool3(xDrug, edge_index, None, batch)
+        # x3 = torch.cat([gmp(xDrug, batch), gap(xDrug, batch)], dim=1)
+        #
+        # xDrug = x1 + x2 + x3
+        #
+        # xDrug = self.lin1(xDrug)
+        # xDrug = self.act1(xDrug)
+        # xDrug = self.lin2(xDrug)
+        # xDrug = self.act2(xDrug)
+        #
+        #
+        #
+        # x = torch.cat((xDrug, x), dim=0)
+
+        # Conv Drug:
+        if self.isFirst:
+            self.nodesEmbedding.weight.data[:nDrug, :].zero_()
+            self.isFirst = False
+            print (self.nodesEmbedding.weight.data[0, :])
+
+        x = self.nodesEmbedding(x)
+        x = self.convD1(x, drugEdges)
+        x = F.relu(x)
+        x = self.convD2(x, drugEdges)
+        x = F.relu(x)
+        # Conv SE:
+        # x = self.convS1(x, seEdges)
+        # x = F.relu(x)
+        # x = self.convS2(x, seEdges)
+        # x = F.relu(x)
+
+        # x = self.nodesEmbedding(x)
+        drugEmbedding = x[drugNodes]
+        seEmbedding = x[seNodes]
+        # re = torch.sigmoid(re)
+        return drugEmbedding, seEmbedding, x
+
+    def cal(self, drugE, seE):
+        return torch.matmul(drugE, seE.t())
+
+    def cal2(self, drugE, seE):
+        nDrug, nDim = drugE.shape
+        nSe, _ = seE.shape
+        preRe = list()
+        for i in range(nDrug):
+            dE = drugE[i]
+            dE = dE.squeeze()
+            de = dE.expand((nSe, nDim))
+            v = torch.cat((de, seE), dim=1)
+            v = self.linear1(v)
+            v = self.act1(v)
+            v = self.linear2(v)
+            # v = self.act2(v)
+            v = v.squeeze()
+            preRe.append(v)
+        return torch.stack(preRe)
+
+('Undirected graph: ', False)
+MPNNX
+<models.MPNNX4P2.MPNNXP4 object at 0x7f1905495090>
+('Manual torch seed: ', 443181909)
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/KFold/ATCInchikeySideEffectByDrug.txt_P3_0
+('Number of substructures, proteins, pathways, drugs, se: ', 2936, 1448, 330, 969, 598)
+((775, 2936), (97, 2936), (775, 598), (97, 598))
+((775, 598), (775, 598), 77654.83, 78522.0)
+('Error: ', tensor(65208.6914, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5143320556197946, 0.17009440159612424)
+('Test: AUC, AUPR: ', 0.506942304797874, 0.17839634182779646)
+('Val: AUC, AUPR: ', 0.5197998573370249, 0.1786746364060655)
+((775, 598), (775, 598), 80659.5, 78522.0)
+('Error: ', tensor(60536.7461, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.777316005600621, 0.47303547260224105)
+('Test: AUC, AUPR: ', 0.721868026032739, 0.39616940261386707)
+('Val: AUC, AUPR: ', 0.752206735573349, 0.43816446373872425)
+((775, 598), (775, 598), 95213.11, 78522.0)
+('Error: ', tensor(52180.5703, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8017376049096445, 0.5221033153753443)
+('Test: AUC, AUPR: ', 0.7464169155326107, 0.4206616456277778)
+('Val: AUC, AUPR: ', 0.7656091828654075, 0.4653849375805156)
+((775, 598), (775, 598), 90188.375, 78522.0)
+('Error: ', tensor(49857.9609, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8126038859099697, 0.545975080205482)
+('Test: AUC, AUPR: ', 0.754123912214599, 0.437277765933631)
+('Val: AUC, AUPR: ', 0.7696504796624337, 0.4772062581032609)
+((775, 598), (775, 598), 96545.44, 78522.0)
+('Error: ', tensor(49414.3203, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8190812024351448, 0.5608433384417297)
+('Test: AUC, AUPR: ', 0.7557162879389342, 0.44373648952408534)
+('Val: AUC, AUPR: ', 0.7689235793852001, 0.47943165308650415)
+((775, 598), (775, 598), 90674.516, 78522.0)
+('Error: ', tensor(48559.5234, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.823069287070586, 0.5699375679350029)
+('Test: AUC, AUPR: ', 0.7557983478224246, 0.44482396628073684)
+('Val: AUC, AUPR: ', 0.7673188236360253, 0.4767246445759437)
+((775, 598), (775, 598), 93391.28, 78522.0)
+('Error: ', tensor(48342.8828, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8267575271361552, 0.5772744061176553)
+('Test: AUC, AUPR: ', 0.7551472473500573, 0.44410385443821265)
+('Val: AUC, AUPR: ', 0.7654829524429363, 0.4724638560639238)
+((775, 598), (775, 598), 90772.164, 78522.0)
+('Error: ', tensor(47926.6797, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.82954550554274, 0.5826972368640666)
+('Test: AUC, AUPR: ', 0.7545417642977896, 0.44242942161313636)
+('Val: AUC, AUPR: ', 0.7631228125568905, 0.46707406149850517)
+((775, 598), (775, 598), 91822.58, 78522.0)
+('Error: ', tensor(47749.9492, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.832120940020534, 0.5873075160136372)
+('Test: AUC, AUPR: ', 0.7536524213837344, 0.440454444954132)
+('Val: AUC, AUPR: ', 0.7606034655949798, 0.4616951286084079)
+((775, 598), (775, 598), 90824.22, 78522.0)
+('Error: ', tensor(47518.5508, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8340280193776748, 0.5908507724933413)
+('Test: AUC, AUPR: ', 0.7531235875741475, 0.4385330100115345)
+('Val: AUC, AUPR: ', 0.7574588454329284, 0.4557217847987531)
+((775, 598), (775, 598), 90654.43, 78522.0)
+('Error: ', tensor(47353.1094, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8357505775895862, 0.5939270421956834)
+('Test: AUC, AUPR: ', 0.7526516511139734, 0.43689026436605427)
+('Val: AUC, AUPR: ', 0.754458673838255, 0.45012077025993436)
+((775, 598), (775, 598), 90484.7, 78522.0)
+('Error: ', tensor(47211.0625, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8371101089650211, 0.596477150903982)
+('Test: AUC, AUPR: ', 0.7522321847511262, 0.43540166071257635)
+('Val: AUC, AUPR: ', 0.7514681597949795, 0.4448364465641931)
+((775, 598), (775, 598), 90233.67, 78522.0)
+('Error: ', tensor(47078.9297, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8383762881332808, 0.5987650569509156)
+('Test: AUC, AUPR: ', 0.7516012667801242, 0.43390545521798507)
+('Val: AUC, AUPR: ', 0.7482497779617283, 0.43983427668243424)
+((775, 598), (775, 598), 89758.664, 78522.0)
+('Error: ', tensor(46952.7031, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8394167284736622, 0.600721525853487)
+('Test: AUC, AUPR: ', 0.7511619353642064, 0.4327103718183576)
+('Val: AUC, AUPR: ', 0.7450061918230545, 0.43512991494036274)
+((775, 598), (775, 598), 89550.36, 78522.0)
+('Error: ', tensor(46848.8867, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.8403186432170782, 0.602482591630616)
+('Test: AUC, AUPR: ', 0.7509628111645961, 0.4318835849699986)
+('Val: AUC, AUPR: ', 0.7420064020026558, 0.43097656315298216)
+((775, 598), (775, 598), 89365.08, 78522.0)
+('Error: ', tensor(46756.0469, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.841101919053604, 0.6040550707649751)
+('Test: AUC, AUPR: ', 0.7506068084239337, 0.43107500377817914)
+('Val: AUC, AUPR: ', 0.7394005651592903, 0.4273384165351145)
+Train: 0.8410 0.6042
+Test: 0.7506 0.4311
+[0.563647208370001, 0.5733906354847651, 0.5878471451050069, 0.5885829739767334, 0.5867000164400291, 0.5954991278794486, 0.6037840426370377, 0.609793790453433, 0.6103471895118813, 0.6146455767486153, 0.6165178508803341, 0.6195174140649389, 0.6288181244954779, 0.6338227153430231, 0.635876192622529, 0.6387651930969939, 0.6398674071960806, 0.6421598474287743, 0.643846342567381, 0.6494690675947565, 0.6544037437102836, 0.6584249488633629, 0.6624582289359328, 0.665984630718035, 0.6693076265466149, 0.6698766441996928, 0.6726857765892211, 0.6756906088353398, 0.6793220985623982, 0.68072260186818, 0.6855609845267128, 0.6875977989074576, 0.6884879688298341, 0.6898558842024969, 0.6909347798039807, 0.6966330624068597, 0.6990012410589923, 0.7027392690429511, 0.705136423997903, 0.7088144240996497, 0.7104621094943595, 0.711503657853858, 0.7148561207814907, 0.7148561207814907, 0.717230109691174, 0.7181017345878131, 0.7201759808659858, 0.721236394695752, 0.7251216855424722, 0.728357114197251, 0.728357114197251, 0.7294431450598354, 0.7294431450598354, 0.7318392968196775, 0.7329022774260078, 0.7329022774260078, 0.734835931626941, 0.734835931626941, 0.734835931626941, 0.734835931626941, 0.734835931626941, 0.734835931626941, 0.734835931626941, 0.7376531458795422, 0.7376531458795422, 0.739004737946698, 0.7404430899264804, 0.7404430899264804, 0.7404430899264804, 0.7404430899264804, 0.7404430899264804, 0.7404430899264804, 0.7421009957129949, 0.7421009957129949, 0.7421009957129949, 0.7468609312572335, 0.7468609312572335, 0.7468609312572335, 0.7486571363427051, 0.7486571363427051, 0.7486571363427051, 0.7486571363427051, 0.7486571363427051, 0.7506068084239337, 0.7506068084239337, 0.7506068084239337, 0.7506068084239337, 0.7506068084239337, 0.7506068084239337, 0.7506068084239337, 0.7506068084239337, 0.7506068084239337, 0.7506068084239337, 0.7506068084239337, 0.7506068084239337]
+[0.07159456356625774, 0.08151378629226702, 0.0914395928621043, 0.09724434320614353, 0.09912999589079678, 0.10841741636617849, 0.11745301340289462, 0.12476455157760459, 0.12850562857913822, 0.13395840571558715, 0.1368422963726941, 0.14143813791346907, 0.15300525397209533, 0.1599661398162494, 0.16291383318201508, 0.1677584051874344, 0.16949906633874798, 0.1728935785314592, 0.17562875375801754, 0.1853672599909301, 0.19354506197227286, 0.20042638815317163, 0.20718127373469825, 0.21373144097676147, 0.21982395803565963, 0.22086038926897397, 0.2256462819476388, 0.23136454531714112, 0.23865669559911806, 0.24131150882088542, 0.25130673905413276, 0.2551284278566933, 0.2570167137348128, 0.2599288350547285, 0.26309678764155553, 0.276420545536481, 0.28207756856654725, 0.29052253704118686, 0.296481652404765, 0.30528104437456816, 0.30962376929630153, 0.31180027358863915, 0.3191334126211895, 0.3191334126211895, 0.32569868524669354, 0.3276834922896995, 0.33358262047905374, 0.33637279186201985, 0.3472651904141102, 0.35638250018522244, 0.35638250018522244, 0.3592212436651015, 0.3592212436651015, 0.3669685177381906, 0.3700117846313782, 0.3700117846313782, 0.37632454271458204, 0.37632454271458204, 0.37632454271458204, 0.37632454271458204, 0.37632454271458204, 0.37632454271458204, 0.37632454271458204, 0.3857927812489841, 0.3857927812489841, 0.3905029210856059, 0.3952396733372492, 0.3952396733372492, 0.3952396733372492, 0.3952396733372492, 0.3952396733372492, 0.3952396733372492, 0.4007330873218898, 0.4007330873218898, 0.4007330873218898, 0.41722375754246926, 0.41722375754246926, 0.41722375754246926, 0.4236753703613769, 0.4236753703613769, 0.4236753703613769, 0.4236753703613769, 0.4236753703613769, 0.43107500377817914, 0.43107500377817914, 0.43107500377817914, 0.43107500377817914, 0.43107500377817914, 0.43107500377817914, 0.43107500377817914, 0.43107500377817914, 0.43107500377817914, 0.43107500377817914, 0.43107500377817914, 0.43107500377817914]
