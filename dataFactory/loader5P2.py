@@ -503,9 +503,9 @@ class BioLoader5P2:
         matDrug2Protein = self.matDrugProtein[pid, :]
 
         # Protein 2 Protein
+        cc = 0
         if config.PPI:
             self.loadPPI()
-            cc = 0
             for pp in self.ppi:
                 p1, p2 = pp
                 proteinId1 = utils.get_dict_index_only(self.protein2Id, p1)
@@ -558,6 +558,9 @@ class BioLoader5P2:
         self.drugFeatures = torch.from_numpy(self.matDrugChem).float()
 
         self.proteinNodeIds = self.x[self.PROTEIN_OFFSET: self.PROTEIN_OFFSET + self.nProtein]
+
+
+        print ("Drug-Protein: ", np.sum(self.matDrugProtein), "Protein-Protein: ", cc, "Protein-Pathways: ", np.sum(self.matProtein2Pathway))
 
     def loadTrainTest(self, fPath, allTrain=False):
         fin = open(fPath)

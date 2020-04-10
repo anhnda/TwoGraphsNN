@@ -66,6 +66,7 @@ class ModeculeFactory2:
         self.N_ATOM = self.getNumAtom()
         self.N_FEATURE = self.N_ATOM
         graphList = list()
+        cc = 0
         for modeculeInfo in self.moleculeList:
             nodeFeatures, edgIndex, edgeAttr = modeculeInfo
             nodeVecs = []
@@ -73,7 +74,7 @@ class ModeculeFactory2:
                 element, atomId, charger, aromatic, hcount = nodeFeature
                 nodeVecs.append(atomId + atomOffset)
 
-
+            cc += len(nodeFeatures)
             newEdgIndex = []
             for edge in edgIndex:
                 i1, i2 = edge
@@ -97,5 +98,6 @@ class ModeculeFactory2:
 
         batch = Batch.from_data_list(graphList)
         print("Batch molecular graph completed.")
+        print("Total: ", cc, len(self.moleculeList), cc * 1.0 / len(self.moleculeList))
 
         return batch

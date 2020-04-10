@@ -23,6 +23,7 @@ def compare(path1, path2):
 
     auc1, aupr1 = loadLogFile(path1)
     auc2, aupr2 = loadLogFile(path2)
+    # print (len(auc1), len(auc2))
     tAUC = stats.ttest_rel(auc1, auc2).pvalue/2
     # tAUC = stats.ttest_ind(auc1, auc2)
 
@@ -42,8 +43,8 @@ def compare(path1, path2):
     # print(np.mean(aupr1), aupr1)
     # print(np.mean(aupr2), aupr2)
 
-    print("tAUC: ", tAUC, " tAUPR: ", tAUPR)
-    print("wAUC ", wAUC, " wAUPR", wAUPR)
+    print("tAUPR: ", tAUPR, "tAUC: ", tAUC)
+    # print("wAUC ", wAUC, " wAUPR", wAUPR)
 
     return tAUC, tAUPR, wAUC, wAUPR
 
@@ -51,9 +52,8 @@ def compare(path1, path2):
 def run():
     import config
 
-    methods = ["NestedInter0", "NestedInter1", "NestedInter2", "NestedOnly", "Outer+InnerFeature", "Outer", "Inner",
-               "NeuSK_Inner", "NeuSK_Outer",
-               "NeuSK_Both"]
+    # methods = ["NESTEDG0.01", "SAGE2", "GAT2", "GCNConv2", "SAGE1", "GAT1", "GCNConv1"]
+    methods = ["NESTEDG0.01", "NESTEDG0.05", "NESTEDG0.10", "NESTEDG0.50", "NESTEDG1.00", "NESTEDG0.00"]
     pathMethod0 = "%s/logs/%s" % (config.C_DIR, methods[0])
     for i in range(len(methods)):
         pathMethodi = "%s/logs/%s" % (config.C_DIR, methods[i])
