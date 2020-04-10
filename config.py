@@ -106,7 +106,7 @@ EMBED_DIM = 100
 
 FACTOR = 1
 
-PPI = True
+PPI = False
 
 UN_DIRECTED = True
 
@@ -151,8 +151,9 @@ ONLY_PROTEIN_FEATURE = False
 
 SE_GRAPH = False
 
-CROSS_PROB = 1
+CROSS_PROB = 0.05
 
+ADAM = False
 # LNSM:
 ALPHA = 0.1
 

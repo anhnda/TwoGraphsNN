@@ -1,22 +1,3 @@
-import torch
-from torch_geometric.nn import TopKPooling
-from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
-import torch.nn.functional as F
-
-from torch_geometric.nn import GCNConv, GraphConv, SAGEConv, GatedGraphConv, GATConv
-from models.gnn.EAT import EATConv
-from models.modules import EdgeConv
-from torch import sigmoid
-import config
-
-from torch.nn import Linear
-
-from torch_geometric.nn import TopKPooling
-from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
-
-import math
-
-
 class Net52(torch.nn.Module):
     def __init__(self, numNode=10000, numAtomFeature=0):
         super(Net52, self).__init__()
@@ -98,9 +79,12 @@ class Net52(torch.nn.Module):
     def forward(self, x, drugEdges, seEdges, drugNodes, seNodes, proteinNodes, proteinWeight, drugGraphBatch, nDrug,
                 drugFeatures=None):
 
+
         xAtomProtein, edge_index, batch = drugGraphBatch.x, drugGraphBatch.edge_index, drugGraphBatch.batch
         xAtomProtein = self.nodesEmbedding(xAtomProtein)
         xAtomProtein = xAtomProtein.squeeze(1)
+
+
 
         xAtomProtein = F.relu(self.conv1g(xAtomProtein, edge_index))
         xAtomProtein, edge_index, _, batch, _, _ = self.pool1(xAtomProtein, edge_index, None, batch)
@@ -121,8 +105,11 @@ class Net52(torch.nn.Module):
         # xDrug = self.lin2(xDrug)
         # xDrug = self.act2(xDrug)
 
+
         nProtein = len(proteinNodes)
-        x = self.nodesEmbedding(x[nDrug+nProtein:])
+        x = self.nodesEmbedding(x[nDrug + nProtein:])
+
+
 
         x = x.squeeze(1)
 
@@ -161,3 +148,17 @@ class Net52(torch.nn.Module):
             v = v.squeeze()
             preRe.append(v)
         return torch.stack(preRe)
+
+('Undirected graph: ', True)
+('Protein Test: ', True)
+('Inner Graph, Outer Graph, Se Graph: ', False, True, False)
+('Drug Features: ', True)
+('Combine Features: ', False)
+('Inner mode: ', False)
+('Cross Prob: ', 0)
+('Inner Level: ', 0)
+MPNNX
+<models.MPNNXP5.MPNNXP5 object at 0x7f18d067b2d0>
+('Manual torch seed: ', 1772727637)
+('Config: ', 'Protein Test: ', True, 'KNN: ', 2)
+KFold: 5 x 10

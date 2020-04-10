@@ -26,6 +26,7 @@ class MPNNXP5:
                              config.INNER_GRAPH, config.OUTER_GRAPH, config.SE_GRAPH))
         self.logger.infoAll(("Drug Features: ", config.INNER_FEATURE))
         self.logger.infoAll(("Combine Features: ", config.COMBINE_FEATURE))
+        self.logger.infoAll(("Is ADAM: ", config.ADAM))
 
         self.logger.infoAll(("Inner mode: ", config.EXT_MODE))
         self.logger.infoAll(("Cross Prob: ", config.CROSS_PROB))
@@ -80,7 +81,11 @@ class MPNNXP5:
         return loss, out
 
     def train(self, bioLoader5P, debug=True, pred=True):
-        optimizer = torch.optim.Adagrad(self.model.parameters(), lr=0.01)
+        if config.ADAM:
+            optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
+        else:
+            optimizer = torch.optim.Adagrad(self.model.parameters(), lr=0.01)
+
         loss = torch.nn.MSELoss()
         # loss = torch.nn.BCELoss()
 

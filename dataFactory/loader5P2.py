@@ -1,7 +1,7 @@
 import config
 from utils import utils
 import numpy as np
-from dataFactory import loadingMap, MoleculeFactory2
+from dataFactory import loadingMap, MoleculeFactory3
 
 import torch
 from torch_geometric.data import Data
@@ -28,7 +28,7 @@ class BioLoader5P2:
         self.drugId2Index = None
         self.drugIndex2Id = None
 
-        self.moleculeFactory = MoleculeFactory2.ModeculeFactory2()
+        self.moleculeFactory = MoleculeFactory3.ModeculeFactory3()
 
     def loadValidInchi(self):
         path = BioLoader5P2.getPathNTIMESIFold(0, 0)
@@ -449,7 +449,7 @@ class BioLoader5P2:
         self.ATOM_OFFSET = NUM_NODES
         NUM_NODES += self.moleculeFactory.getNumAtom()
         #
-        self.graphBatch = self.moleculeFactory.createBatchGraph(self.ATOM_OFFSET, self.PROTEIN_OFFSET, self.nProtein)
+        self.graphBatch = self.moleculeFactory.createBatchGraph(self.ATOM_OFFSET, self.PROTEIN_OFFSET, self.nProtein, self.drugId2ProteinIndices)
         self.N_ATOMFEATURE = self.moleculeFactory.N_FEATURE
 
         self.NUM_NODES = NUM_NODES

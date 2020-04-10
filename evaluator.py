@@ -80,7 +80,7 @@ class Evaluator:
         rareAUCs = []
         rareAUPRs = []
         for timeFold in range(config.NTIMES_KFOLD):
-            for iFold in range(config.K_FOLD):
+            for iFold in range(1, config.K_FOLD):
                 config.IFOLD = iFold
 
                 # if model.name == "MPNNX3":
