@@ -498,9 +498,6 @@ class BioLoader5P2:
 
                 self.matDrugProtein[drugId, proteinId] = 1
 
-        # For 557
-        pid = 557
-        matDrug2Protein = self.matDrugProtein[pid, :]
 
         # Protein 2 Protein
         cc = 0
@@ -532,6 +529,16 @@ class BioLoader5P2:
                     if config.FEAUTURE_UNDIRECTED:
                         drug_edge_index.append([drugId + self.DRUG_OFFSET, proteinId + self.PROTEIN_OFFSET])
                     self.matDrugProtein[drugId, proteinId] = 1
+
+            # Remake drugId2ProteinList
+            drugId2ProteinList2 = dict()
+            for drugId in range(self.nDrug):
+                drug2ProteinAr = self.matDrugProtein[drugId, :]
+                drug2ProteinLs = np.nonzero(drug2ProteinAr)[0]
+                drugId2ProteinList2[drugId] = drug2ProteinLs
+
+            self.drugId2ProteinIndices = drugId2ProteinList2
+
 
         # drugPathway:
         self.matDrugPathway = np.zeros((self.nDrug, self.nPathway))

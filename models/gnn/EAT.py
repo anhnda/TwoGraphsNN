@@ -16,7 +16,7 @@ class EATConv(MessagePassing):
     """
 
     def __init__(self, in_channels, out_channels, heads=1, concat=True,
-                 negative_slope=0.2, dropout=0, extProb=0.001, bias=True, **kwargs):
+                 negative_slope=0.2, dropout=0, extProb=1, bias=True, **kwargs):
         super(EATConv, self).__init__(aggr='add', **kwargs)
 
         self.in_channels = in_channels
@@ -50,7 +50,7 @@ class EATConv(MessagePassing):
 
         zeros(self.bias)
 
-    def forward(self, x, edge_index, ext_tensor=None, ext_weight=None, size=None):
+    def forward(self, x, edge_index, ext_embed, ext_edges, batch, size=None):
 
         if size is None and torch.is_tensor(x):
             edge_index, _ = remove_self_loops(edge_index)
@@ -63,7 +63,7 @@ class EATConv(MessagePassing):
 
                  None if x[1] is None else torch.matmul(x[1], self.weight))
 
-        all_x, all_edges, anchor2, size2 = create_ext_edges(x, edge_index, ext_tensor, self.extProb, ext_weight)
+        all_x, all_edges, anchor2, size2 = create_ext_edges(x, edge_index, ext_embed, ext_edges, batch, self.extProb)
 
         all_x = self.propagate(all_edges, size=size, x=all_x, anchor2=anchor2, size2=size2)
 

@@ -84,9 +84,9 @@ class MPNNXP5:
         loss = torch.nn.MSELoss()
         # loss = torch.nn.BCELoss()
 
-        proteinMat = bioLoader5P.matDrugProtein
-        proteinWeight = np.sum(proteinMat, axis=0)
-        proteinWeight /= np.max(proteinWeight)
+        # proteinMat = bioLoader5P.matDrugProtein
+        # proteinWeight = np.sum(proteinMat, axis=0)
+        # proteinWeight /= np.max(proteinWeight)
 
         allOuts = []
         allEval = []
@@ -106,7 +106,7 @@ class MPNNXP5:
                                                bioLoader5P.drugTrainNodeIds,
                                                bioLoader5P.seNodeIds,
                                                bioLoader5P.proteinNodeIds,
-                                               proteinWeight,
+                                               bioLoader5P.drugId2ProteinIndices,
                                                bioLoader5P.graphBatch,
                                                bioLoader5P.nDrug,
                                                bioLoader5P.drugFeatures

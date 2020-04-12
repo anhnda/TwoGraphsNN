@@ -13,7 +13,7 @@ from dataFactory.loader6 import BioLoader6
 from dataFactory.loader1_3 import BioLoader1
 from dataFactory.loader3_2 import BioLoader3_2
 import numpy as np
-
+import random
 import torch
 
 
@@ -73,6 +73,7 @@ class Evaluator:
         logger.infoAll(("KFold: %s x %s" % (config.NTIMES_KFOLD, config.K_FOLD)))
         torch.manual_seed(config.TORCH_SEED)
         np.random.seed(config.TORCH_SEED)
+        random.seed(config.TORCH_SEED)
 
         aucs = []
         auprs = []
