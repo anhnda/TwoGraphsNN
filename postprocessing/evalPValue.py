@@ -52,8 +52,8 @@ def compare(path1, path2):
 def run():
     import config
 
-    # methods = ["NESTEDG0.01", "SAGE2", "GAT2", "GCNConv2", "SAGE1", "GAT1", "GCNConv1"]
-    methods = ["NESTEDG0.01", "NESTEDG0.05", "NESTEDG0.10", "NESTEDG0.50", "NESTEDG1.00", "NESTEDG0.00"]
+    methods = ["G3N", "SAGE2", "GAT2", "GCNConv2", "SAGE1", "GAT1", "GCNConv1"]
+    # methods = ["NESTEDG0.01", "NESTEDG0.05", "NESTEDG0.10", "NESTEDG0.50", "NESTEDG1.00", "NESTEDG0.00"]
     pathMethod0 = "%s/logs/%s" % (config.C_DIR, methods[0])
     for i in range(len(methods)):
         pathMethodi = "%s/logs/%s" % (config.C_DIR, methods[i])
