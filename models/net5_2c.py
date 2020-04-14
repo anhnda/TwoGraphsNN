@@ -4,7 +4,7 @@ from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 import torch.nn.functional as F
 
 from torch_geometric.nn import GCNConv, GraphConv, SAGEConv, GatedGraphConv, GATConv
-from models.gnn.EAT import EATConv
+from models.gnn2.EAT import EATConv
 from models.modules import EdgeConv
 from torch import sigmoid
 import config

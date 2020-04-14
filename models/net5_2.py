@@ -4,7 +4,9 @@ from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
 import torch.nn.functional as F
 
 from torch_geometric.nn import GCNConv, GraphConv, SAGEConv, GatedGraphConv, GATConv
-from models.gnn.EAT import EATConv
+# from models.gnn2.EAT import EATConv
+from models.g3n.XGAT import XGAT
+from models.g3n.XSAGE import XSAGE
 from models.modules import EdgeConv
 from torch import sigmoid
 import config
@@ -21,9 +23,9 @@ class Net52(torch.nn.Module):
     def __init__(self, numNode=10000, numAtomFeature=0):
         super(Net52, self).__init__()
 
-        self.convD1 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
-        self.convD2 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
-        self.convD3 = SAGEConv(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convD1 = XGAT(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convD2 = XGAT(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convD3 = XGAT(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
 
         # self.my_reset_params(self.convD1.weight, config.EMBED_DIM)
         # self.my_reset_params(self.convD1.bias, config.EMBED_DIM)
@@ -39,7 +41,6 @@ class Net52(torch.nn.Module):
         #
         # self.my_reset_params(self.convS2.weight, config.EMBED_DIM)
         # self.my_reset_params(self.convS2.bias, config.EMBED_DIM)
-
 
         self.L1 = Linear(config.CHEM_FINGERPRINT_SIZE, config.EMBED_DIM * 2)
         self.L1C = Linear(config.CHEM_FINGERPRINT_SIZE + config.EMBED_DIM, config.EMBED_DIM * 2)
@@ -62,26 +63,24 @@ class Net52(torch.nn.Module):
         self.mlinear2 = Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
         self.mact2 = F.relu
 
-        self.conv1 = EATConv(config.EMBED_DIM, config.EMBED_DIM, extProb=config.CROSS_PROB)
+        # self.conv1 = EATConv(config.EMBED_DIM, config.EMBED_DIM, extProb=config.CROSS_PROB)
         self.conv1g = GATConv(config.EMBED_DIM, config.EMBED_DIM)
 
         self.pool1 = TopKPooling(config.EMBED_DIM, ratio=1)
-        self.conv2 = EATConv(config.EMBED_DIM, config.EMBED_DIM, extProb=config.CROSS_PROB)
+        # self.conv2 = EATConv(config.EMBED_DIM, config.EMBED_DIM, extProb=config.CROSS_PROB)
         self.conv2g = GATConv(config.EMBED_DIM, config.EMBED_DIM)
 
         self.pool2 = TopKPooling(config.EMBED_DIM, ratio=1)
-        self.conv3 = EATConv(config.EMBED_DIM, config.EMBED_DIM, extProb=config.CROSS_PROB)
+        # self.conv3 = EATConv(config.EMBED_DIM, config.EMBED_DIM, extProb=config.CROSS_PROB)
         self.conv3g = GATConv(config.EMBED_DIM, config.EMBED_DIM)
-
-
 
         self.pool3 = TopKPooling(config.EMBED_DIM, ratio=1)
 
-        self.conv4= EATConv(config.EMBED_DIM, config.EMBED_DIM, extProb=config.CROSS_PROB)
+        # self.conv4= EATConv(config.EMBED_DIM, config.EMBED_DIM, extProb=config.CROSS_PROB)
         self.conv4g = GATConv(config.EMBED_DIM, config.EMBED_DIM)
         self.pool4 = TopKPooling(config.EMBED_DIM, ratio=1)
 
-        self.conv5 = EATConv(config.EMBED_DIM, config.EMBED_DIM, extProb=config.CROSS_PROB)
+        # self.conv5 = EATConv(config.EMBED_DIM, config.EMBED_DIM, extProb=config.CROSS_PROB)
         self.conv5g = GATConv(config.EMBED_DIM, config.EMBED_DIM)
         self.pool5 = TopKPooling(config.EMBED_DIM, ratio=1)
 
@@ -98,12 +97,11 @@ class Net52(torch.nn.Module):
         if tensor is not None:
             tensor.data.uniform_(0.0, bound)
 
-    def forward(self, x, drugEdges, seEdges, drugNodes, seNodes, proteinNodes, drugId2ProteinIdList, drugGraphBatch, nDrug, drugFeatures = None):
-
+    def forward(self, x, drugEdges, seEdges, drugNodes, seNodes, proteinNodes, drugId2ProteinIdList, drugGraphBatch,
+                nDrug, drugFeatures=None):
 
         if config.INNER_FEATURE and drugFeatures is not None:
             nDrug = drugFeatures.shape[0]
-
 
             xDrug = self.L1(drugFeatures)
             xDrug = self.actL1(xDrug)
@@ -119,73 +117,49 @@ class Net52(torch.nn.Module):
             # xDrug = self.mact1(self.mlinear1(xDrug))
             # xDrug = self.mact2(self.mlinear2(xDrug))
 
-            xProtein = self.nodesEmbedding(proteinNodes)
             xAtom = self.nodesEmbedding(xAtom)
             xAtom = xAtom.squeeze(1)
 
-            iLevel = 0
-            if config.BOTH_GRAPH and config.EXT_MODE and iLevel >= config.INTER_LEVELS:
-                xAtom = F.relu(self.conv1(xAtom, edge_index, xProtein, drugId2ProteinIdList, batch))
-            else:
-                xAtom = F.relu(self.conv1g(xAtom, edge_index))
+            xAtom = F.relu(self.conv1g(xAtom, edge_index))
             xAtom, edge_index, _, batch, _, _ = self.pool1(xAtom, edge_index, None, batch)
             x1 = torch.cat([gmp(xAtom, batch), gap(xAtom, batch)], dim=1)
-            iLevel += 1
 
-            if config.BOTH_GRAPH and config.EXT_MODE and iLevel >= config.INTER_LEVELS:
-                xAtom = F.relu(self.conv2(xAtom, edge_index, xProtein, drugId2ProteinIdList, batch))
-            else:
-                xAtom = F.relu(self.conv2g(xAtom, edge_index))
+            xAtom = F.relu(self.conv2g(xAtom, edge_index))
 
-            iLevel += 1
             xAtom, edge_index, _, batch, _, _ = self.pool2(xAtom, edge_index, None, batch)
             x2 = torch.cat([gmp(xAtom, batch), gap(xAtom, batch)], dim=1)
 
-            if config.BOTH_GRAPH and config.EXT_MODE and iLevel >= config.INTER_LEVELS:
-                xAtom = F.relu(self.conv3(xAtom, edge_index, xProtein, drugId2ProteinIdList, batch))
-            else:
-                xAtom = F.relu(self.conv3g(xAtom, edge_index))
-
+            xAtom = F.relu(self.conv3g(xAtom, edge_index))
             xAtom, edge_index, _, batch, _, _ = self.pool3(xAtom, edge_index, None, batch)
             x3 = torch.cat([gmp(xAtom, batch), gap(xAtom, batch)], dim=1)
-            iLevel += 1
+
             xsum = 0
-            if config.N_INNER_LAYER >= 4:
-                if config.BOTH_GRAPH and config.EXT_MODE and iLevel >= config.INTER_LEVELS:
-                    xAtom = F.relu(self.conv4(xAtom, edge_index, xProtein, drugId2ProteinIdList, batch))
-                else:
-                    xAtom = F.relu(self.conv4g(xAtom, edge_index))
-
-                xAtom, edge_index, _, batch, _, _ = self.pool4(xAtom, edge_index, None, batch)
-                x4 = torch.cat([gmp(xAtom, batch), gap(xAtom, batch)], dim=1)
-                xsum += x4
-                iLevel += 1
-                if config.N_INNER_LAYER == 5:
-                    if config.BOTH_GRAPH and config.EXT_MODE and iLevel >= config.INTER_LEVELS:
-                        xAtom = F.relu(self.conv5(xAtom, edge_index, xProtein, drugId2ProteinIdList, batch))
-                    else:
-                        xAtom = F.relu(self.conv5g(xAtom, edge_index))
-
-                    xAtom, edge_index, _, batch, _, _ = self.pool5(xAtom, edge_index, None, batch)
-                    x5 = torch.cat([gmp(xAtom, batch), gap(xAtom, batch)], dim=1)
-                    xsum += x5
+            #            if config.N_INNER_LAYER >= 4:
+            #                if config.BOTH_GRAPH and config.EXT_MODE and iLevel >= config.INTER_LEVELS:
+            #                    xAtom = F.relu(self.conv4(xAtom, edge_index, xProtein, drugId2ProteinIdList, batch))
+            #                else:
+            #                    xAtom = F.relu(self.conv4g(xAtom, edge_index))
+            #
+            #                xAtom, edge_index, _, batch, _, _ = self.pool4(xAtom, edge_index, None, batch)
+            #                x4 = torch.cat([gmp(xAtom, batch), gap(xAtom, batch)], dim=1)
+            #                xsum += x4
+            #                iLevel += 1
+            #                if config.N_INNER_LAYER == 5:
+            #                    if config.BOTH_GRAPH and config.EXT_MODE and iLevel >= config.INTER_LEVELS:
+            #                        xAtom = F.relu(self.conv5(xAtom, edge_index, xProtein, drugId2ProteinIdList, batch))
+            #                    else:
+            #                        xAtom = F.relu(self.conv5g(xAtom, edge_index))
+            #                    xAtom, edge_index, _, batch, _, _ = self.pool5(xAtom, edge_index, None, batch)
+            #                    x5 = torch.cat([gmp(xAtom, batch), gap(xAtom, batch)], dim=1)
+            #                    xsum += x5
 
             xDrug = x1 + x2 + x3 + xsum
-
-
             xDrug = self.lin1(xDrug)
             xDrug = self.act1(xDrug)
 
             # xDrug = self.lin2(xDrug)
             # xDrug = self.act2(xDrug)
 
-            if config.COMBINE_FEATURE:
-                #print (drugFeatures.shape, xDrug.shape)
-                combinedFeatures = torch.cat((drugFeatures, xDrug), dim=1)
-                xDrug = self.L1C(combinedFeatures)
-                xDrug = self.actL1(xDrug)
-                xDrug = self.L2(xDrug)
-                xDrug = self.actL2(xDrug)
 
             x = self.nodesEmbedding(x[nDrug:])
             x = x.squeeze(1)
@@ -196,18 +170,13 @@ class Net52(torch.nn.Module):
 
         if config.OUTER_GRAPH:
             # Conv Drug:
-            x = self.convD1(x, drugEdges)
+            x0 = x
+            x = self.convD1(x, drugEdges, x0)
             x = F.relu(x)
-            x = self.convD2(x, drugEdges)
+            x = self.convD2(x, drugEdges, x0)
             x = F.relu(x)
-            x = self.convD3(x, drugEdges)
-            x = F.relu(x)
-        if config.SE_GRAPH:
-            # Conv SE:
-            x = self.convS1(x, seEdges)
-            x = F.relu(x)
-            # x = self.convS2(x, seEdges)
-            # x = F.relu(x)
+#            x = self.convD3(x, drugEdges, x0)
+#            x = F.relu(x)
 
         drugEmbedding = x[drugNodes]
         seEmbedding = x[seNodes]
