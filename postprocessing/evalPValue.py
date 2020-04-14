@@ -5,6 +5,8 @@ def loadLogFile(path):
     auc = []
     aupr = []
     fin = open(path)
+    xauc = ""
+    xaupr = ""
     while True:
         line = fin.readline()
         if line == "":
@@ -13,16 +15,22 @@ def loadLogFile(path):
             parts = line.strip().split(" ")
             auc.append(float(parts[1]))
             aupr.append(float(parts[2]))
+        elif line.startswith("AUC:"):
+            line = line.strip().split(" ")
+            xauc = "$%s \pm %s$" % (line[1], line[2])
+        elif line.startswith("AUPR:"):
+            line = line.strip().split(" ")
+            xaupr = "$%s \pm %s$" % (line[1], line[2])
     fin.close()
 
-    return auc, aupr
+    return auc, aupr, xauc, xaupr
 
 
 def compare(path1, path2):
     import numpy as np
 
-    auc1, aupr1 = loadLogFile(path1)
-    auc2, aupr2 = loadLogFile(path2)
+    auc1, aupr1, xauc1, xaupr1 = loadLogFile(path1)
+    auc2, aupr2, xauc2, xaupr2 = loadLogFile(path2)
     # print (len(auc1), len(auc2))
     tAUC = stats.ttest_rel(auc1, auc2).pvalue/2
     # tAUC = stats.ttest_ind(auc1, auc2)
@@ -44,6 +52,10 @@ def compare(path1, path2):
     # print(np.mean(aupr2), aupr2)
 
     print("tAUPR: ", tAUPR, "tAUC: ", tAUC)
+
+    print(xaupr2)
+    print(xauc2)
+    print
     # print("wAUC ", wAUC, " wAUPR", wAUPR)
 
     return tAUC, tAUPR, wAUC, wAUPR

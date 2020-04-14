@@ -67,6 +67,7 @@ class ModeculeFactory2:
         self.N_FEATURE = self.N_ATOM
         graphList = list()
         cc = 0
+        ne = 0
         for modeculeInfo in self.moleculeList:
             nodeFeatures, edgIndex, edgeAttr = modeculeInfo
             nodeVecs = []
@@ -79,6 +80,7 @@ class ModeculeFactory2:
             for edge in edgIndex:
                 i1, i2 = edge
                 newEdgIndex.append([i1, i2])
+                ne += 1
 
             # for proteinId in range(nProtein):
             #     nodeVecs.append(proteinId+proteinOffset)
@@ -98,6 +100,7 @@ class ModeculeFactory2:
 
         batch = Batch.from_data_list(graphList)
         print("Batch molecular graph completed.")
-        print("Total: ", cc, len(self.moleculeList), cc * 1.0 / len(self.moleculeList))
+        print("Total Atoms: ", cc, len(self.moleculeList), cc * 1.0 / len(self.moleculeList))
+        print("Edges: ", ne, ne/2 , ne*1.0/2 / len(self.moleculeList))
 
         return batch
