@@ -50,7 +50,7 @@ class EATConv(MessagePassing):
 
         zeros(self.bias)
 
-    def forward(self, x, edge_index, ext_embed, ext_edges, batch, size=None):
+    def forward(self, x, edge_index, ext_embed, ext_edges, batch, size=None, isDebug=False):
 
         if size is None and torch.is_tensor(x):
             edge_index, _ = remove_self_loops(edge_index)
@@ -64,12 +64,21 @@ class EATConv(MessagePassing):
                  None if x[1] is None else torch.matmul(x[1], self.weight))
 
         all_x, all_edges, anchor2, size2 = create_ext_edges(x, edge_index, ext_embed, ext_edges, batch, self.extProb)
+        if isDebug:
+            print(" Saving X edges anchor ...")
+            from utils import utils
+            import config
+            utils.save_obj(all_x, "%s/all_x" % config.SAVEMODEL_DIR)
+            utils.save_obj(all_edges, "%s/all_edges" % config.SAVEMODEL_DIR)
+            utils.save_obj(anchor2, "%s/anchor2" % config.SAVEMODEL_DIR)
+            utils.save_obj(ext_edges, "%s/ext_edges" % config.SAVEMODEL_DIR)
+            utils.save_obj(batch, "%s/batch" % config.SAVEMODEL_DIR)
 
-        all_x = self.propagate(all_edges, size=size, x=all_x, anchor2=anchor2, size2=size2)
+        all_x = self.propagate(all_edges, size=size, x=all_x, anchor2=anchor2, size2=size2, debug2=isDebug)
 
         return all_x[:-size2]
 
-    def message(self, edge_index_i, x_i, x_j, size_i, anchor2, size2):
+    def message(self, edge_index_i, x_i, x_j, size_i, anchor2, size2, debug2):
 
         # Compute attention coefficients for normal edges.
         ox_i = x_i[:anchor2]
@@ -83,10 +92,7 @@ class EATConv(MessagePassing):
             oalpha = (torch.cat([ox_i, ox_j], dim=-1) * self.att).sum(dim=-1)
 
         oalpha = F.leaky_relu(oalpha, self.negative_slope)
-        oalpha = softmax(oalpha, oedege_index_i, size_i)
 
-        # Sample attention coefficients stochastically.
-        oalpha = F.dropout(oalpha, p=self.dropout, training=self.training)
 
         # Compute attention coefficients for ext edges.
         ex_i = x_i[anchor2:]
@@ -104,9 +110,25 @@ class EATConv(MessagePassing):
 
         ealpha = F.leaky_relu(ealpha, self.negative_slope)
 
-        ealpha = softmax(ealpha, eedege_index_i, size_i)
+
+
+
+        oalpha = softmax(oalpha, oedege_index_i, size_i)
+        ealpha *= 0.01
+        # ealpha = softmax(ealpha, eedege_index_i, size_i)
+
+
+        if debug2:
+            print("Saving edge weight")
+            from utils import utils
+            import config
+            utils.save_obj(oalpha, "%s/oalpha" % config.SAVEMODEL_DIR)
+            utils.save_obj(ealpha, "%s/ealpha" % config.SAVEMODEL_DIR)
         # ealpha = ealpha * 0.01
 
+
+        # Sample attention coefficients stochastically.
+        oalpha = F.dropout(oalpha, p=self.dropout, training=self.training)
         # Sample attention coefficients stochastically.
         ealpha = F.dropout(ealpha, p=self.dropout, training=self.training)
 

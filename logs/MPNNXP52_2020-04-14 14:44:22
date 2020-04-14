@@ -1,22 +1,3 @@
-import torch
-from torch_geometric.nn import TopKPooling
-from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
-import torch.nn.functional as F
-
-from torch_geometric.nn import GCNConv, GraphConv, SAGEConv, GatedGraphConv, GATConv
-from models.gnn.EAT import EATConv
-from models.modules import EdgeConv
-from torch import sigmoid
-import config
-
-from torch.nn import Linear
-
-from torch_geometric.nn import TopKPooling
-from torch_geometric.nn import global_mean_pool as gap, global_max_pool as gmp
-
-import math
-
-
 class Net52(torch.nn.Module):
     def __init__(self, numNode=10000, numAtomFeature=0):
         super(Net52, self).__init__()
@@ -172,7 +153,7 @@ class Net52(torch.nn.Module):
 
             xDrug = x1 + x2 + x3 + xsum
 
-            xDrug = x1
+
             xDrug = self.lin1(xDrug)
             xDrug = self.act1(xDrug)
 
@@ -233,3 +214,105 @@ class Net52(torch.nn.Module):
             v = v.squeeze()
             preRe.append(v)
         return torch.stack(preRe)
+
+('Undirected graph: ', True)
+('Protein Test: ', True)
+('Inner Graph, Outer Graph, Se Graph: ', True, True, False)
+('Drug Features: ', False)
+('Combine Features: ', False)
+('Inner mode: ', True)
+('Cross Prob: ', 1)
+('Inner Level: ', 0)
+MPNNX
+<models.MPNNXP5.MPNNXP5 object at 0x7f5459fa5990>
+('Manual torch seed: ', 1772727637)
+('Config: ', 'Protein Test: ', True, 'KNN: ', 2)
+KFold: 5 x 10
+Training raw path: /home/anhnd/DTI Project/Codes/MPNN/data/NTimeKFold/ATCInchikeySideEffectByDrug.txt_P3_0_0
+('Number of substructures, proteins, pathways, drugs, se: ', 888, 1448, 330, 808, 331)
+((646, 2666), (81, 2666), (646, 331), (81, 331))
+('VALIDATE SUM PROTEIN TRAIN: ', 19463.0)
+('VALIDATE SUM PROTEIN TEST: ', 2334.0)
+Debug cross connections...
+Saving bioloader...
+Saving cross connections...
+((646, 331), (646, 331), 38214.96, 59640.0)
+('Error: ', tensor(45104.9453, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.5423877145325614, 0.30668873295130533)
+('Val: AUC, AUPR, Erros: ', 0.5390369536124202, 0.2554304937486418, 4882.518)
+('Test: AUC, AUPR, Erros: ', 0.5393172007342462, 0.28389158620116167, 5346.2637)
+((646, 331), (646, 331), 58982.938, 59640.0)
+('Error: ', tensor(42551.5664, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.6419443124182945, 0.38206185055686936)
+('Val: AUC, AUPR, Erros: ', 0.6507927154878888, 0.3351129499282489, 4798.272)
+('Test: AUC, AUPR, Erros: ', 0.6365170649316096, 0.3543992758623865, 5123.7246)
+((646, 331), (646, 331), 68936.2, 59640.0)
+('Error: ', tensor(42077.4336, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.6824807961110285, 0.44202898435219545)
+('Val: AUC, AUPR, Erros: ', 0.6934901104494424, 0.3959088607499128, 4859.282)
+('Test: AUC, AUPR, Erros: ', 0.6742378271809005, 0.4069012578456167, 5121.085)
+((646, 331), (646, 331), 71205.055, 59640.0)
+('Error: ', tensor(40556.4609, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7028100410473946, 0.48248447196779337)
+('Val: AUC, AUPR, Erros: ', 0.7171659980821653, 0.4454658134384034, 4709.3105)
+('Test: AUC, AUPR, Erros: ', 0.6937889592110172, 0.4440773218739892, 4968.9253)
+((646, 331), (646, 331), 70189.81, 59640.0)
+('Error: ', tensor(38835.9219, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7136201903720368, 0.5093931425212898)
+('Val: AUC, AUPR, Erros: ', 0.7275609707973945, 0.47547955114102775, 4504.362)
+('Test: AUC, AUPR, Erros: ', 0.7042336998600132, 0.4688581305356875, 4786.778)
+((646, 331), (646, 331), 67017.24, 59640.0)
+('Error: ', tensor(37585.0039, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.721015952011169, 0.5336729232486666)
+('Val: AUC, AUPR, Erros: ', 0.7326499228772483, 0.4962235961885527, 4330.8525)
+('Test: AUC, AUPR, Erros: ', 0.7104614851198575, 0.4914601998451384, 4647.5303)
+((646, 331), (646, 331), 67176.734, 59640.0)
+('Error: ', tensor(37093.1875, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7256851229567487, 0.5444182089757837)
+('Val: AUC, AUPR, Erros: ', 0.7348092411686606, 0.5041684119278234, 4285.1875)
+('Test: AUC, AUPR, Erros: ', 0.7138131964899087, 0.5021970462936713, 4606.6313)
+((646, 331), (646, 331), 71421.64, 59640.0)
+('Error: ', tensor(37102.7344, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7296184593215144, 0.5509411974690688)
+('Val: AUC, AUPR, Erros: ', 0.7358841830357206, 0.5078082796821056, 4358.6567)
+('Test: AUC, AUPR, Erros: ', 0.7162648077827088, 0.5081416987396177, 4651.2783)
+((646, 331), (646, 331), 66441.31, 59640.0)
+('Error: ', tensor(36413.3594, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7331346182456662, 0.5550648963023707)
+('Val: AUC, AUPR, Erros: ', 0.7368513047173858, 0.5099462228214994, 4229.456)
+('Test: AUC, AUPR, Erros: ', 0.7179474070671046, 0.510955643180707, 4556.7383)
+((646, 331), (646, 331), 63784.117, 59640.0)
+('Error: ', tensor(36135.3438, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7354661193806851, 0.5580811536798181)
+('Val: AUC, AUPR, Erros: ', 0.7372420335506363, 0.511014232510117, 4172.7876)
+('Test: AUC, AUPR, Erros: ', 0.719367790534966, 0.5130397722821034, 4511.258)
+((646, 331), (646, 331), 63949.336, 59640.0)
+('Error: ', tensor(36041.5156, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7373698481777429, 0.5608300072261916)
+('Val: AUC, AUPR, Erros: ', 0.7375837927237, 0.511521322956148, 4173.013)
+('Test: AUC, AUPR, Erros: ', 0.7207197460381037, 0.5152603351017517, 4501.494)
+((646, 331), (646, 331), 70994.69, 59640.0)
+('Error: ', tensor(36427.8359, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7392552522294817, 0.5642210056744199)
+('Val: AUC, AUPR, Erros: ', 0.7378772342339543, 0.5115712480834417, 4327.722)
+('Test: AUC, AUPR, Erros: ', 0.7224622567650981, 0.5186936523542008, 4596.3003)
+((646, 331), (646, 331), 68404.24, 59640.0)
+('Error: ', tensor(35905.3828, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7443939125067293, 0.5702934073394326)
+('Val: AUC, AUPR, Erros: ', 0.7390776467868474, 0.5124608054477229, 4268.4795)
+('Test: AUC, AUPR, Erros: ', 0.7251966050495149, 0.5228544865382573, 4548.689)
+((646, 331), (646, 331), 62808.27, 59640.0)
+('Error: ', tensor(35458.6094, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.747110107853743, 0.5736122619395694)
+('Val: AUC, AUPR, Erros: ', 0.7399279561526175, 0.5134531289021371, 4147.626)
+('Test: AUC, AUPR, Erros: ', 0.7272161462293704, 0.5257331350432712, 4457.3496)
+((646, 331), (646, 331), 63159.203, 59640.0)
+('Error: ', tensor(35359.8828, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7492306453419648, 0.5765903138493491)
+('Val: AUC, AUPR, Erros: ', 0.7408873625319802, 0.5143198558689217, 4148.483)
+('Test: AUC, AUPR, Erros: ', 0.7295150697352022, 0.5288557119846141, 4445.848)
+((646, 331), (646, 331), 65042.066, 59640.0)
+('Error: ', tensor(35356.1445, grad_fn=<AddBackward0>))
+('Train: AUC, AUPR: ', 0.7506749712579412, 0.5791616089083728)
+('Val: AUC, AUPR, Erros: ', 0.7419388751837488, 0.5156415237602867, 4177.793)
+('Test: AUC, AUPR, Erros: ', 0.7311050982837675, 0.5316907857630317, 4457.7217)

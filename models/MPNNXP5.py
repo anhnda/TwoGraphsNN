@@ -80,7 +80,7 @@ class MPNNXP5:
         return loss, out
 
     def train(self, bioLoader5P, debug=True, pred=True):
-        optimizer = torch.optim.Adagrad(self.model.parameters(), lr=0.01)
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
         loss = torch.nn.MSELoss()
         # loss = torch.nn.BCELoss()
 
@@ -96,11 +96,14 @@ class MPNNXP5:
         target2 = bioLoader5P.trainOutMatrix.numpy()
         validateOutput = bioLoader5P.validOutMatrix.numpy()
         targetTest = bioLoader5P.testOutMatrix.numpy()
-
+        isDebug = False
         for epoch in range(config.N_EPOCH):
 
             print("\r%s" % epoch, end="")
             optimizer.zero_grad()
+            if epoch == config.N_EPOCH - 1:
+                isDebug = True and config.CROSS_DB
+
             drugE, seE, x = self.model.forward(bioLoader5P.x,
                                                bioLoader5P.drugGraphData.edge_index, bioLoader5P.seGraphData.edge_index,
                                                bioLoader5P.drugTrainNodeIds,
@@ -109,8 +112,13 @@ class MPNNXP5:
                                                bioLoader5P.drugId2ProteinIndices,
                                                bioLoader5P.graphBatch,
                                                bioLoader5P.nDrug,
-                                               bioLoader5P.drugFeatures
+                                               bioLoader5P.drugFeatures,
+                                               isDebug=isDebug
                                                )
+            if isDebug:
+                print("Debug: Completed saving data")
+                print("Exit")
+                exit(-1)
 
             err, out = self.getMatDotLoss(drugE, seE, bioLoader5P.trainOutMatrix)
             err.backward()

@@ -148,6 +148,13 @@ class Evaluator:
                 seMat = bioLoader.seMat
 
                 print(inputTrain.shape, outputTrain.shape)
+
+                if config.CROSS_DB:
+                    logger.infoAll("Debug cross connections...")
+                    logger.infoAll("Saving bioloader...")
+                    utils.save_obj(bioLoader, "%s/bioLoader" % config.SAVEMODEL_DIR)
+                    logger.infoAll("Saving cross connections...")
+
                 if model.name.startswith("MPNN"):
                     pred = model.fitAndPredict(bioLoader)
                 elif model.name == "CSMF":
