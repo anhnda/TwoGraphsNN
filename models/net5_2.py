@@ -23,9 +23,9 @@ class Net52(torch.nn.Module):
     def __init__(self, numNode=10000, numAtomFeature=0):
         super(Net52, self).__init__()
 
-        self.convD1 = XGAT(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
-        self.convD2 = XGAT(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
-        self.convD3 = XGAT(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convD1 = XSAGE(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convD2 = XSAGE(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
+        self.convD3 = XSAGE(config.EMBED_DIM, config.EMBED_DIM)  # SAGEConv(config.EMBED_DIM, config.EMBED_DIM)
 
         # self.my_reset_params(self.convD1.weight, config.EMBED_DIM)
         # self.my_reset_params(self.convD1.bias, config.EMBED_DIM)
@@ -175,8 +175,8 @@ class Net52(torch.nn.Module):
             x = F.relu(x)
             x = self.convD2(x, drugEdges, x0)
             x = F.relu(x)
-#            x = self.convD3(x, drugEdges, x0)
-#            x = F.relu(x)
+            x = self.convD3(x, drugEdges, x0)
+            x = F.relu(x)
 
         drugEmbedding = x[drugNodes]
         seEmbedding = x[seNodes]
