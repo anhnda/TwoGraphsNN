@@ -1,0 +1,182 @@
+MPNNX
+<models.trainLevel2GNN.WrapperLevel2GNN object at 0x7fa5a19375d0>
+('Manual torch seed: ', 1772727637)
+KFold: 1 x 10
+('Optimizer: ', 'Adam')
+class Level2GNN(torch.nn.Module):
+    def __init__(self, outSize, maxNode=10000):
+        super(Level2GNN, self).__init__()
+
+        self.LAYER_TYPE = SAGEConv
+        self.LAYERS = []
+
+        N = 5
+        for i in range(N):
+            layer = self.LAYER_TYPE(config.EMBED_DIM, config.EMBED_DIM)
+            self.LAYERS.append(layer)
+
+        self.act = F.relu
+
+        self.linear1 = Linear(config.EMBED_DIM, config.EMBED_DIM)
+        self.linear2 = Linear(config.EMBED_DIM, outSize)
+
+        self.nodesEmbedding = torch.nn.Embedding(num_embeddings=maxNode + 1, embedding_dim=config.EMBED_DIM)
+        self.nodesEmbedding.weight.data.uniform_(0.001, 0.3)
+
+
+        self.linear1.weight.data.uniform_(0.001, 0.3)
+        self.linear2.weight.data.uniform_(0.001, 0.3)
+
+        # Molecule graph neural net
+
+    def my_reset_params(self, tensor, size=10):
+        bound = 1.0 / math.sqrt(size)
+        if tensor is not None:
+            tensor.data.uniform_(0.0, bound)
+
+    def forward(self, x, edges):
+
+        x = self.nodesEmbedding(x)
+        x = x.squeeze()
+
+        for i in range(config.N_LAYER_LEVEL_2):
+            x = self.LAYERS[i](x, edges)
+            x = F.relu(x)
+        return x
+
+    def calOut(self, x, keyIds):
+        o = x[keyIds]
+        # o = self.linear1(o)
+        # o = F.relu(o)
+        o = self.linear2(o)
+        o2 = F.relu(o)
+        return o2
+
+Training raw path: /home/anhnd/DTI Project/Codes/G3N/data/NTimeKFold/ATCInchikeySideEffectByDrug.txt_P3_0_0
+('Number of substructures, proteins, pathways, drugs, se: ', 888, 1448, 330, 808, 331)
+((646, 2666), (81, 2666), (646, 331), (81, 331))
+((646, 331), (646, 331), 83401.66, 59640.0)
+('Error: ', tensor(0.2177, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.5057111479490966, 0.27784540292082854)
+('Val: AUC, AUPR, Erros: ', 0.594108168258852, 0.3081590779732016, 5207.171)
+('Test: AUC, AUPR, Erros: ', 0.5824552249530563, 0.32735142938999734, 5408.6533)
+((646, 331), (646, 331), 54125.082, 59640.0)
+('Error: ', tensor(0.1730, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.7199687792918293, 0.5387116204097429)
+('Val: AUC, AUPR, Erros: ', 0.7294780759439404, 0.49169086467546724, 4148.052)
+('Test: AUC, AUPR, Erros: ', 0.7123378794703986, 0.501491082431531, 4545.8726)
+((646, 331), (646, 331), 59096.41, 59640.0)
+('Error: ', tensor(0.1693, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.7318119892331213, 0.5603971790833274)
+('Val: AUC, AUPR, Erros: ', 0.7346944314161398, 0.5102407514813814, 4153.92)
+('Test: AUC, AUPR, Erros: ', 0.7199269195108219, 0.5188043896635823, 4498.415)
+((646, 331), (646, 331), 62225.23, 59640.0)
+('Error: ', tensor(0.1645, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.7536758623180938, 0.5827924756930158)
+('Val: AUC, AUPR, Erros: ', 0.7428414568868985, 0.5205416712198438, 4112.207)
+('Test: AUC, AUPR, Erros: ', 0.7327236523117759, 0.5329641302568275, 4419.3364)
+((646, 331), (646, 331), 60888.285, 59640.0)
+('Error: ', tensor(0.1599, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.7695809005860448, 0.6039839470126702)
+('Val: AUC, AUPR, Erros: ', 0.7498239063749152, 0.5276623022488384, 4062.5903)
+('Test: AUC, AUPR, Erros: ', 0.7433997711035882, 0.5452461780721705, 4352.8477)
+((646, 331), (646, 331), 60096.582, 59640.0)
+('Error: ', tensor(0.1551, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.7859552406514024, 0.6258042681009168)
+('Val: AUC, AUPR, Erros: ', 0.7588815470879414, 0.5325390887726177, 4022.1484)
+('Test: AUC, AUPR, Erros: ', 0.7538026902542707, 0.5526420200548221, 4311.702)
+((646, 331), (646, 331), 60422.53, 59640.0)
+('Error: ', tensor(0.1504, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.8015161425120494, 0.6474829307409933)
+('Val: AUC, AUPR, Erros: ', 0.7660290256503065, 0.536533977981838, 4000.0298)
+('Test: AUC, AUPR, Erros: ', 0.7636264173642688, 0.5559759693955004, 4297.2495)
+((646, 331), (646, 331), 60039.926, 59640.0)
+('Error: ', tensor(0.1460, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.8148083909220656, 0.6673281087600429)
+('Val: AUC, AUPR, Erros: ', 0.7689637357040455, 0.5358006268649698, 4000.3528)
+('Test: AUC, AUPR, Erros: ', 0.768303402020533, 0.5555556671988708, 4314.6475)
+((646, 331), (646, 331), 59832.727, 59640.0)
+('Error: ', tensor(0.1424, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.8251564693115041, 0.6831362522900087)
+('Val: AUC, AUPR, Erros: ', 0.7678576299147076, 0.5254492149613615, 4056.8145)
+('Test: AUC, AUPR, Erros: ', 0.7667773213348366, 0.5486494492764207, 4401.08)
+((646, 331), (646, 331), 59721.008, 59640.0)
+('Error: ', tensor(0.1391, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.8338888951273438, 0.6967627882765649)
+('Val: AUC, AUPR, Erros: ', 0.7651962309521878, 0.5108056935428366, 4156.562)
+('Test: AUC, AUPR, Erros: ', 0.7616735799231413, 0.5370143539381126, 4537.1567)
+((646, 331), (646, 331), 59643.598, 59640.0)
+('Error: ', tensor(0.1362, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.8416308977007685, 0.7089820220018458)
+('Val: AUC, AUPR, Erros: ', 0.761793250948497, 0.4968367363662624, 4286.55)
+('Test: AUC, AUPR, Erros: ', 0.75628708709116, 0.5253592461700591, 4683.052)
+((646, 331), (646, 331), 59549.516, 59640.0)
+('Error: ', tensor(0.1335, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.8486302439918938, 0.7203450896067447)
+('Val: AUC, AUPR, Erros: ', 0.7594411587657546, 0.4866960801286073, 4416.576)
+('Test: AUC, AUPR, Erros: ', 0.7523940156516434, 0.5159682701330903, 4828.98)
+((646, 331), (646, 331), 59500.363, 59640.0)
+('Error: ', tensor(0.1308, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.8552014985550173, 0.7312136476031086)
+('Val: AUC, AUPR, Erros: ', 0.7578826094866209, 0.4792021001155148, 4541.663)
+('Test: AUC, AUPR, Erros: ', 0.7490029320499129, 0.5069853756954263, 4994.915)
+((646, 331), (646, 331), 59451.52, 59640.0)
+('Error: ', tensor(0.1283, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.8613661916717988, 0.7414136762552035)
+('Val: AUC, AUPR, Erros: ', 0.7561341543284312, 0.4720430683489588, 4673.111)
+('Test: AUC, AUPR, Erros: ', 0.745677585466059, 0.4986158881734304, 5186.036)
+((646, 331), (646, 331), 59400.234, 59640.0)
+('Error: ', tensor(0.1259, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.8671029636846759, 0.7508571285873956)
+('Val: AUC, AUPR, Erros: ', 0.7545364269925859, 0.46501792103040807, 4811.746)
+('Test: AUC, AUPR, Erros: ', 0.7432416040294079, 0.4916932660486343, 5387.148)
+((646, 331), (646, 331), 59338.773, 59640.0)
+('Error: ', tensor(0.1236, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.872390131033043, 0.7596797895371492)
+('Val: AUC, AUPR, Erros: ', 0.7532065774364789, 0.4563239481229967, 4972.974)
+('Test: AUC, AUPR, Erros: ', 0.7399978335352866, 0.4847742758818848, 5608.999)
+((646, 331), (646, 331), 59315.617, 59640.0)
+('Error: ', tensor(0.1213, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.8773202166727248, 0.7680238788255553)
+('Val: AUC, AUPR, Erros: ', 0.7521050938428364, 0.4494659491930758, 5134.7563)
+('Test: AUC, AUPR, Erros: ', 0.7373046358160553, 0.4787066301034417, 5830.5117)
+Train: 0.8015 0.6475
+Test: 0.7636 0.5560
+Training raw path: /home/anhnd/DTI Project/Codes/G3N/data/NTimeKFold/ATCInchikeySideEffectByDrug.txt_P3_0_1
+('Number of substructures, proteins, pathways, drugs, se: ', 888, 1448, 330, 808, 331)
+((646, 2666), (81, 2666), (646, 331), (81, 331))
+((646, 331), (646, 331), 74806.516, 59364.0)
+('Error: ', tensor(0.2109, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.49699830164935005, 0.27127536253180634)
+('Val: AUC, AUPR, Erros: ', 0.571805673665817, 0.32648423572066726, 5340.7217)
+('Test: AUC, AUPR, Erros: ', 0.5794788761931028, 0.2941453866294411, 5008.616)
+((646, 331), (646, 331), 54202.86, 59364.0)
+('Error: ', tensor(0.1720, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.7240137529432621, 0.5441492847368901)
+('Val: AUC, AUPR, Erros: ', 0.7133919475399461, 0.513094818558908, 4622.4)
+('Test: AUC, AUPR, Erros: ', 0.7332538082817546, 0.5027683231833772, 4131.365)
+((646, 331), (646, 331), 60484.125, 59364.0)
+('Error: ', tensor(0.1674, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.7374956497652463, 0.5650362283559667)
+('Val: AUC, AUPR, Erros: ', 0.7203558794932322, 0.5276641215888481, 4584.464)
+('Test: AUC, AUPR, Erros: ', 0.7360426610887981, 0.513354712344746, 4158.298)
+((646, 331), (646, 331), 61097.09, 59364.0)
+('Error: ', tensor(0.1627, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.7599736672501702, 0.5864040499645361)
+('Val: AUC, AUPR, Erros: ', 0.7281131053425599, 0.5326948705029989, 4531.3438)
+('Test: AUC, AUPR, Erros: ', 0.7448110284176628, 0.5202496866376617, 4101.912)
+((646, 331), (646, 331), 60283.535, 59364.0)
+('Error: ', tensor(0.1581, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.7759155683108582, 0.6081805964368081)
+('Val: AUC, AUPR, Erros: ', 0.7340067284019873, 0.5348899501181099, 4507.306)
+('Test: AUC, AUPR, Erros: ', 0.7539306011196937, 0.5285963768317605, 4055.7556)
+((646, 331), (646, 331), 59618.305, 59364.0)
+('Error: ', tensor(0.1540, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.7892761777493649, 0.6271032310210675)
+('Val: AUC, AUPR, Erros: ', 0.7376061567053086, 0.5309158495583153, 4508.946)
+('Test: AUC, AUPR, Erros: ', 0.7614322384481084, 0.5317021500744327, 4032.847)
+((646, 331), (646, 331), 59741.2, 59364.0)
+('Error: ', tensor(0.1498, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.8030220914433649, 0.6458528125106534)
+('Val: AUC, AUPR, Erros: ', 0.7428115287283494, 0.5348322588719645, 4497.256)
+('Test: AUC, AUPR, Erros: ', 0.7679119475057663, 0.5344101929016252, 4015.6343)

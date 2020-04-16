@@ -204,7 +204,7 @@ if __name__ == "__main__":
     iFold = 1
     bioLoader2 = BioLoader2()
     trainPath = BioLoader2.getPathIFold(iFold)
-    bioLoader2.createTrainTestGraph(trainPath)
+    bioLoader2.createTrainTestVal(trainPath)
 
     from models.baselines.omodels import LNSM
 

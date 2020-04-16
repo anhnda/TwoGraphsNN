@@ -36,7 +36,7 @@ def executeMPNN433():
     from models.MPNNX4_33 import MPNNX4_33
     bioloader4 = BioLoader4()
     trainPath = BioLoader4.getPathIFold(config.IFOLD)
-    bioloader4.createTrainTestGraph(trainPath, allTrain=True)
+    bioloader4.createTrainTestVal(trainPath, allTrain=True)
     model = MPNNX4_33()
 
     trainAllMPNN(model, bioloader4)
@@ -47,7 +47,7 @@ def evalTopMPNN433():
 
     bioLoader4 = BioLoader4()
     trainPath = BioLoader4.getPathIFold(config.IFOLD)
-    bioLoader4.createTrainTestGraph(trainPath, allTrain=True)
+    bioLoader4.createTrainTestVal(trainPath, allTrain=True)
 
     # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # net4 = Net4_3(numNode=config.MAX_NODE + 1, numAtomFeature=bioLoader4.N_ATOMFEATURE)
@@ -160,7 +160,7 @@ def executeSLR():
     from models.baselines.slr import PSLR
     bioloader4 = BioLoader4()
     trainPath = BioLoader4.getPathIFold(config.IFOLD)
-    bioloader4.createTrainTestGraph(trainPath, allTrain=True)
+    bioloader4.createTrainTestVal(trainPath, allTrain=True)
     model = PSLR()
     trainAllSLR(model, bioloader4)
 
@@ -172,7 +172,7 @@ def executeSCCA():
     from rpy2.robjects.packages import importr
     bioloader4 = BioLoader4()
     trainPath = BioLoader4.getPathIFold(config.IFOLD)
-    bioloader4.createTrainTestGraph(trainPath, allTrain=True)
+    bioloader4.createTrainTestVal(trainPath, allTrain=True)
 
     inputTrain = bioloader4.trainInpMat[:,
                  config.CHEM_FINGERPRINT_SIZE: config.CHEM_FINGERPRINT_SIZE + bioloader4.nProtein]
@@ -197,7 +197,7 @@ def evalTopSLR():
     from models.baselines.slr import PSLR
     bioLoader4 = BioLoader4()
     trainPath = BioLoader4.getPathIFold(config.IFOLD)
-    bioLoader4.createTrainTestGraph(trainPath, allTrain=True)
+    bioLoader4.createTrainTestVal(trainPath, allTrain=True)
     path = "%s/%s" % (config.SAVEMODEL_DIR, "SLR")
     weights = np.loadtxt(path)
     weights = np.transpose(weights)
@@ -261,7 +261,7 @@ def evalTopSCCA():
 
     bioLoader4 = BioLoader4()
     trainPath = BioLoader4.getPathIFold(config.IFOLD)
-    bioLoader4.createTrainTestGraph(trainPath, allTrain=True)
+    bioLoader4.createTrainTestVal(trainPath, allTrain=True)
 
     WX = np.loadtxt("%s/scca/WX" % config.SAVEMODEL_DIR)
     WY = np.loadtxt("%s/scca/WY" % config.SAVEMODEL_DIR)
@@ -342,7 +342,7 @@ def evalTopSCCA():
 def evalData():
     bioLoader4 = BioLoader4()
     trainPath = BioLoader4.getPathIFold(config.IFOLD)
-    bioLoader4.createTrainTestGraph(trainPath, allTrain=True)
+    bioLoader4.createTrainTestVal(trainPath, allTrain=True)
     inputTrain = bioLoader4.trainInpMat
     outputTrain = bioLoader4.trainOutMatrix.numpy()
     inputTest = bioLoader4.testInpMat

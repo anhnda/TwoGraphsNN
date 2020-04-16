@@ -1,7 +1,7 @@
 from io import open
 
 import numpy as np
-from sklearn.externals import joblib
+import joblib
 import os
 import time
 

@@ -8,7 +8,7 @@ from dataFactory.loader2 import BioLoader2
 def interx():
     bioLoader2 = BioLoader2()
     trainPath = BioLoader2.getPathIFold(0)
-    bioLoader2.createTrainTestGraph(trainPath,allTrain=True)
+    bioLoader2.createTrainTestVal(trainPath, allTrain=True)
     from models.MPNNX1 import MPNNX1
     model = MPNNX1()
     model.resetModel()

@@ -62,7 +62,7 @@ class ModeculeFactory2:
     def getNumAtom(self):
         return len(self.__atomElement2Id)
 
-    def createBatchGraph(self, atomOffset, proteinOffset, nProtein):
+    def createBatchGraph(self, atomOffset):
         self.N_ATOM = self.getNumAtom()
         self.N_FEATURE = self.N_ATOM
         graphList = list()
@@ -80,18 +80,13 @@ class ModeculeFactory2:
                 i1, i2 = edge
                 newEdgIndex.append([i1, i2])
 
-            # for proteinId in range(nProtein):
-            #     nodeVecs.append(proteinId+proteinOffset)
-            #     for nodeId in range(len(nodeFeatures)):
-            #         newEdgIndex.append([proteinId, nodeId])
-            #         edgeAttr.append([4])
-
             nodeVecs = np.asarray(nodeVecs)
             nodeVecs = torch.from_numpy(nodeVecs).long()
             newEdgIndex = torch.from_numpy(np.asarray(newEdgIndex)).long().t().contiguous()
-            edgeAttr = torch.from_numpy(np.asarray(edgeAttr)).float()
 
-            data = Data(x=nodeVecs, edge_index=newEdgIndex, edge_attr=edgeAttr)
+            # edgeAttr = torch.from_numpy(np.asarray(edgeAttr)).float()
+
+            data = Data(x=nodeVecs, edge_index=newEdgIndex)
             graphList.append(data)
 
         self.graphList = graphList

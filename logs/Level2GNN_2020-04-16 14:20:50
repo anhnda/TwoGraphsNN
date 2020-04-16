@@ -1,0 +1,87 @@
+MPNNX
+<models.trainLevel2GNN.WrapperLevel2GNN object at 0x7f206fff1290>
+('Manual torch seed: ', 1772727637)
+KFold: 1 x 10
+('Optimizer: ', 'Adam')
+class Level2GNN(torch.nn.Module):
+    def __init__(self, outSize, maxNode=10000):
+        super(Level2GNN, self).__init__()
+
+        self.LAYER_TYPE = SAGEConv
+        self.LAYERS = []
+
+        N = 5
+        for i in range(N):
+            layer = self.LAYER_TYPE(config.EMBED_DIM, config.EMBED_DIM)
+            self.LAYERS.append(layer)
+
+        self.act = F.relu
+
+        self.linear1 = Linear(config.EMBED_DIM, config.EMBED_DIM)
+        self.linear2 = Linear(config.EMBED_DIM, outSize)
+
+        self.nodesEmbedding = torch.nn.Embedding(num_embeddings=maxNode + 1, embedding_dim=config.EMBED_DIM)
+        self.nodesEmbedding.weight.data.uniform_(0.001, 0.3)
+
+
+        # self.linear1.weight.data.uniform_(0.001, 0.3)
+        # self.linear2.weight.data.uniform_(0.001, 0.3)
+
+        # Molecule graph neural net
+
+    def my_reset_params(self, tensor, size=10):
+        bound = 1.0 / math.sqrt(size)
+        if tensor is not None:
+            tensor.data.uniform_(0.0, bound)
+
+    def forward(self, x, edges):
+
+        x = self.nodesEmbedding(x)
+        x = x.squeeze()
+
+        for i in range(config.N_LAYER_LEVEL_2):
+            x = self.LAYERS[i](x, edges)
+            x = F.relu(x)
+        return x
+
+    def calOut(self, x, keyIds):
+        o = x[keyIds]
+        # o = self.linear1(o)
+        # o = F.relu(o)
+        o = self.linear2(o)
+        o2 = F.relu(o)
+        return o2
+
+Training raw path: /home/anhnd/DTI Project/Codes/G3N/data/NTimeKFold/ATCInchikeySideEffectByDrug.txt_P3_0_0
+('Number of substructures, proteins, pathways, drugs, se: ', 888, 1448, 330, 808, 331)
+((646, 2666), (81, 2666), (646, 331), (81, 331))
+((646, 331), (646, 331), 4931.212, 59640.0)
+('Error: ', tensor(0.2672, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.5138195052539738, 0.2820533813804304)
+('Val: AUC, AUPR, Erros: ', 0.5093080930866591, 0.23605384232565424, 5854.2676)
+('Test: AUC, AUPR, Erros: ', 0.5143118621265608, 0.26687594966537603, 6506.3813)
+((646, 331), (646, 331), 30270.975, 59640.0)
+('Error: ', tensor(0.2252, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.5727250385145023, 0.3967583176871844)
+('Val: AUC, AUPR, Erros: ', 0.5700066311238058, 0.3478716235887897, 5238.371)
+('Test: AUC, AUPR, Erros: ', 0.5681287826560467, 0.3679805348755395, 5735.3228)
+((646, 331), (646, 331), 34310.71, 59640.0)
+('Error: ', tensor(0.2181, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.5837931112285637, 0.4407979384589901)
+('Val: AUC, AUPR, Erros: ', 0.5797399429288066, 0.3888219215483637, 5156.1196)
+('Test: AUC, AUPR, Erros: ', 0.5759837394667107, 0.39993037628433536, 5677.741)
+((646, 331), (646, 331), 33912.836, 59640.0)
+('Error: ', tensor(0.2155, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.5865812812898387, 0.4464394534635055)
+('Val: AUC, AUPR, Erros: ', 0.5830643184391208, 0.39205836589845133, 5085.6353)
+('Test: AUC, AUPR, Erros: ', 0.5794262035602453, 0.40541994169446244, 5612.8877)
+((646, 331), (646, 331), 33322.36, 59640.0)
+('Error: ', tensor(0.2124, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.5951055880094407, 0.4561224035190399)
+('Val: AUC, AUPR, Erros: ', 0.5878498239537224, 0.3972777199210656, 5025.004)
+('Test: AUC, AUPR, Erros: ', 0.585239539719674, 0.41324108494183337, 5526.49)
+((646, 331), (646, 331), 33959.766, 59640.0)
+('Error: ', tensor(0.2093, grad_fn=<MseLossBackward>))
+('Train: AUC, AUPR: ', 0.602253194244049, 0.4691465506578558)
+('Val: AUC, AUPR, Erros: ', 0.5911447043445706, 0.40246007481863505, 5003.403)
+('Test: AUC, AUPR, Erros: ', 0.5906839889095475, 0.4244682652779269, 5471.493)
