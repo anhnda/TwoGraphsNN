@@ -1,0 +1,65 @@
+MPNNX
+<models.trainLevel1GNN.WrapperLevel1GNN object at 0x7f3081df6f90>
+('Manual torch seed: ', 1772727637)
+KFold: 1 x 10
+('Optimizer: ', 'Adam')
+class Level1GNN(torch.nn.Module):
+    def __init__(self, outSize, layerType=GATConv, numNode=10000 ):
+        super(Level1GNN, self).__init__()
+
+        self.nodesEmbedding = torch.nn.Embedding(num_embeddings=numNode + 1, embedding_dim=config.EMBED_DIM)
+        self.nodesEmbedding.weight.data.uniform_(0.001, 0.3)
+        self.CONV_LAYER = layerType
+        # Molecule graph neural net
+
+        self.convs = []
+        self.pools = []
+
+        for i in range(config.N_LAYER_LEVEL_1):
+            self.convs.append(self.CONV_LAYER(config.EMBED_DIM, config.EMBED_DIM))
+            self.pools.append(TopKPooling(config.EMBED_DIM, ratio=0.8))
+
+        self.lin1 = torch.nn.Linear(config.EMBED_DIM * 2, config.EMBED_DIM)
+        self.lin2 = torch.nn.Linear(config.EMBED_DIM, config.EMBED_DIM)
+
+        self.lout1 = Linear(config.EMBED_DIM, config.EMBED_DIM)
+        self.lout2 = Linear(config.EMBED_DIM, outSize)
+
+    def my_reset_params(self, tensor, size=10):
+        bound = 1.0 / math.sqrt(size)
+        if tensor is not None:
+            tensor.data.uniform_(0.0, bound)
+
+    def forward(self, graphBatch):
+
+        xAtom, edge_index, batch = graphBatch.x, graphBatch.edge_index, graphBatch.batch
+        xAtom = self.nodesEmbedding(xAtom)
+        xAtom = xAtom.squeeze(1)
+
+        xs = []
+        for i in range(config.N_LAYER_LEVEL_1):
+            xAtom = F.relu(self.convs[i](xAtom, edge_index))
+            # xAtom, edge_index, _, batch, _, _ = self.pools[i](xAtom, edge_index, None, batch)
+            xi = torch.cat([gmp(xAtom, batch), gap(xAtom, batch)], dim=1)
+            xs.append(xi)
+
+        xDrug = xs[-1]
+
+        xDrug = self.lin1(xDrug)
+        xDrug = F.relu(xDrug)
+
+        return xDrug
+
+    def calOut(self, x, keyIds):
+        o = x[keyIds]
+        # o = self.linear1(o)
+        # o = F.relu(o)
+        o = self.lout2(o)
+        # o = F.relu(o)
+        return o
+
+('Num Graph Layer: ', 5)
+('Layer TYPE:', <class 'torch_geometric.nn.conv.gat_conv.GATConv'>)
+Training raw path: /home/anhnd/DTI Project/Codes/G3N/data/NTimeKFold/ATCInchikeySideEffectByDrug.txt_P3_0_0
+('Number of substructures, proteins, pathways, drugs, se: ', 888, 1448, 330, 808, 331)
+((646, 2666), (81, 2666), (646, 331), (81, 331))

@@ -26,8 +26,7 @@ class Level2GNN(torch.nn.Module):
         self.LAYER_TYPE = layerType
         self.LAYERS = []
 
-        N = 5
-        for i in range(N):
+        for i in range(config.N_LAYER_LEVEL_2):
             layer = self.LAYER_TYPE(config.EMBED_DIM, config.EMBED_DIM)
             self.LAYERS.append(layer)
 
@@ -37,7 +36,7 @@ class Level2GNN(torch.nn.Module):
         self.linear2 = Linear(config.EMBED_DIM, outSize)
 
         self.nodesEmbedding = torch.nn.Embedding(num_embeddings=maxNode + 1, embedding_dim=config.EMBED_DIM)
-        self.nodesEmbedding.weight.data.uniform_(0.001, 0.3)
+        # self.nodesEmbedding.weight.data.uniform_(0.001, 0.3)
 
 
         # self.linear1.weight.data.uniform_(0.001, 0.3)
@@ -65,5 +64,5 @@ class Level2GNN(torch.nn.Module):
         # o = self.linear1(o)
         # o = F.relu(o)
         o = self.linear2(o)
-        o2 = F.relu(o)
-        return o2
+        # o = F.relu(o)
+        return o

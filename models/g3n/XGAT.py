@@ -50,7 +50,7 @@ class XGAT(MessagePassing):
 
         zeros(self.bias)
 
-    def forward(self, x, edge_index, xref, size=None):
+    def forward(self, x, edge_index, xref=None, size=None):
 
         if size is None and torch.is_tensor(x):
             edge_index, _ = remove_self_loops(edge_index)
@@ -71,49 +71,67 @@ class XGAT(MessagePassing):
 
     def message(self, edge_index_i, x_i, x_j, size_i, anchor2, size2):
 
-        # Compute attention coefficients for normal edges.
-        ox_i = x_i[:anchor2]
-        ox_j = x_j[:anchor2]
-        oedege_index_i = edge_index_i[:anchor2]
-        ox_j = ox_j.view(-1, self.heads, self.out_channels)
-        if ox_i is None:
-            oalpha = (ox_j * self.att[:, :, self.out_channels:]).sum(dim=-1)
+        if anchor2 is None:
+            # Compute attention coefficients.
+            x_j = x_j.view(-1, self.heads, self.out_channels)
+            if x_i is None:
+                alpha = (x_j * self.att[:, :, self.out_channels:]).sum(dim=-1)
+            else:
+                x_i = x_i.view(-1, self.heads, self.out_channels)
+                alpha = (torch.cat([x_i, x_j], dim=-1) * self.att).sum(dim=-1)
+
+            alpha = F.leaky_relu(alpha, self.negative_slope)
+            alpha = softmax(alpha, edge_index_i, size_i)
+
+            # Sample attention coefficients stochastically.
+            alpha = F.dropout(alpha, p=self.dropout, training=self.training)
+
+            xjj = x_j * alpha.view(-1, self.heads, 1)
         else:
-            ox_i = ox_i.view(-1, self.heads, self.out_channels)
-            oalpha = (torch.cat([ox_i, ox_j], dim=-1) * self.att).sum(dim=-1)
+            # Compute attention coefficients for normal edges.
+            ox_i = x_i[:anchor2]
+            ox_j = x_j[:anchor2]
+            oedege_index_i = edge_index_i[:anchor2]
+            ox_j = ox_j.view(-1, self.heads, self.out_channels)
+            if ox_i is None:
+                oalpha = (ox_j * self.att[:, :, self.out_channels:]).sum(dim=-1)
+            else:
+                ox_i = ox_i.view(-1, self.heads, self.out_channels)
+                oalpha = (torch.cat([ox_i, ox_j], dim=-1) * self.att).sum(dim=-1)
 
-        oalpha = F.leaky_relu(oalpha, self.negative_slope)
-        oalpha = softmax(oalpha, oedege_index_i, size_i)
+            oalpha = F.leaky_relu(oalpha, self.negative_slope)
+            oalpha = softmax(oalpha, oedege_index_i, size_i)
 
-        # Sample attention coefficients stochastically.
-        oalpha = F.dropout(oalpha, p=self.dropout, training=self.training)
+            # Sample attention coefficients stochastically.
+            oalpha = F.dropout(oalpha, p=self.dropout, training=self.training)
 
-        # Compute attention coefficients for ext edges.
-        ex_i = x_i[anchor2:]
-        ex_j = x_j[anchor2:]
+            # Compute attention coefficients for ext edges.
+            ex_i = x_i[anchor2:]
+            ex_j = x_j[anchor2:]
 
-        eedege_index_i = edge_index_i[anchor2:]
+            eedege_index_i = edge_index_i[anchor2:]
 
-        ex_j = ex_j.view(-1, self.heads, self.out_channels)
+            ex_j = ex_j.view(-1, self.heads, self.out_channels)
 
-        if ex_i is None:
-            ealpha = (ex_j * self.att_ext[:, :, self.out_channels:]).sum(dim=-1)
-        else:
-            ex_i = ex_i.view(-1, self.heads, self.out_channels)
-            ealpha = (torch.cat([ex_i, ex_j], dim=-1) * self.att_ext).sum(dim=-1)
+            if ex_i is None:
+                ealpha = (ex_j * self.att_ext[:, :, self.out_channels:]).sum(dim=-1)
+            else:
+                ex_i = ex_i.view(-1, self.heads, self.out_channels)
+                ealpha = (torch.cat([ex_i, ex_j], dim=-1) * self.att_ext).sum(dim=-1)
 
-        ealpha = F.leaky_relu(ealpha, self.negative_slope)
+            ealpha = F.leaky_relu(ealpha, self.negative_slope)
 
-        # ealpha = softmax(ealpha, eedege_index_i, size_i)
-        # ealpha = ealpha * 0.01
+            # ealpha = softmax(ealpha, eedege_index_i, size_i)
+            # ealpha = ealpha * 0.01
 
-        # Sample attention coefficients stochastically.
-        ealpha = F.dropout(ealpha, p=self.dropout, training=self.training)
+            # Sample attention coefficients stochastically.
+            ealpha = F.dropout(ealpha, p=self.dropout, training=self.training)
 
-        alpha = torch.cat((oalpha, ealpha), dim=0)
-        # alpha = alpha.view(-1, self.heads, 1)
+            alpha = torch.cat((oalpha, ealpha), dim=0)
+            # alpha = alpha.view(-1, self.heads, 1)
 
-        return x_j * alpha
+            xjj = x_j * alpha
+        return xjj
 
     def update(self, aggr_out):
         if self.concat is True:

@@ -316,7 +316,7 @@ class BioLoader5P2:
         self.ATOM_OFFSET = NUM_NODES
         NUM_NODES += self.moleculeFactory.getNumAtom()
         #
-        self.graphBatch = self.moleculeFactory.createBatchGraph(self.ATOM_OFFSET)
+        self.graphBatch = self.moleculeFactory.createBatchGraph(atomOffset=0)
         self.N_ATOMFEATURE = self.moleculeFactory.N_FEATURE
 
         self.NUM_NODES = NUM_NODES

@@ -53,24 +53,28 @@ class XSAGE(MessagePassing):
 
         uniform(self.in_channels, self.bias)
 
-    def forward(self, x, edge_index, xref, edge_weight=None, size=None):
+    def forward(self, x, edge_index, xref=None, edge_weight=None, size=None):
         """"""
         if size is None and torch.is_tensor(x):
             edge_index, edge_weight = add_remaining_self_loops(
                 edge_index, edge_weight, 1, x.size(0))
 
-        all_x, all_edges, anchor2, size2 = create_ext_edges(x, edge_index, xref)
+        if xref is None:
+            x = torch.matmul(x, self.weight)
+            x = self.propagate(edge_index, size=size, x=x,
+                               edge_weight=edge_weight)
+        else:
+            all_x, all_edges, anchor2, size2 = create_ext_edges(x, edge_index, xref)
 
+            x1 = torch.matmul(all_x[:anchor2], self.weight)
+            x2 = torch.matmul(all_x[anchor2:], self.weight2)
+            all_x = torch.cat((x1, x2), dim=0)
 
-        x1 = torch.matmul(all_x[:anchor2], self.weight)
-        x2 = torch.matmul(all_x[anchor2:], self.weight2)
-        all_x = torch.cat((x1, x2), dim=0)
-
-
-        x_all =  self.propagate(all_edges, size=size, x=all_x,
-                              edge_weight=edge_weight)
-        return x_all[:-size2]
-
+            all_x = self.propagate(all_edges, size=size, x=all_x,
+                                   edge_weight=edge_weight)
+            x = all_x[:-size2]
+        return x
+    
     def message(self, x_j, edge_weight):
         return x_j if edge_weight is None else edge_weight.view(-1, 1) * x_j
 

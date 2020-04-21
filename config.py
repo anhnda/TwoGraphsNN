@@ -1,6 +1,6 @@
 import os
 from torch_geometric.nn import GCNConv, GraphConv, SAGEConv, GatedGraphConv, GATConv
-
+from models.g3n.nn import XGAT, XSAGE
 C_DIR = os.path.abspath(os.path.dirname(__file__))
 
 DATA_DIR = "%s/data" % C_DIR
@@ -99,13 +99,16 @@ else:
     CHEM_FINGERPRINT_SIZE = N_PUBCHEM
 
 IFOLD = 1
-NTIMES_KFOLD = 1
+NTIMES_KFOLD = 5
 K_FOLD = 10
 
 EMBED_DIM = 100
 N_EPOCH = 161
 
 OPTIMIZER = "Adam"
-N_LAYER_LEVEL_2 = 3
-LEVEL_2_LAYER = GATConv
 
+N_LAYER_LEVEL_2 = 3
+LEVEL_2_LAYER = XSAGE
+
+N_LAYER_LEVEL_1 = 3
+LEVEL_1_LAYER = SAGEConv

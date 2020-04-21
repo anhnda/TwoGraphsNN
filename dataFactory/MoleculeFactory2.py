@@ -62,7 +62,7 @@ class ModeculeFactory2:
     def getNumAtom(self):
         return len(self.__atomElement2Id)
 
-    def createBatchGraph(self, atomOffset):
+    def createBatchGraph(self, atomOffset=0):
         self.N_ATOM = self.getNumAtom()
         self.N_FEATURE = self.N_ATOM
         graphList = list()
@@ -72,7 +72,7 @@ class ModeculeFactory2:
             nodeVecs = []
             for nodeFeature in nodeFeatures:
                 element, atomId, charger, aromatic, hcount = nodeFeature
-                nodeVecs.append(atomId + atomOffset)
+                nodeVecs.append(atomId+atomOffset)
 
             cc += len(nodeFeatures)
             newEdgIndex = []
